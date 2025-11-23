@@ -195,14 +195,10 @@ class _ChatWidgetState extends State<ChatWidget> {
 
       if (response.candidates.isNotEmpty) {
         final aiResponseContent = response.candidates.first.content;
-        if (aiResponseContent != null) {
-          setState(() {
-            _messages.add(aiResponseContent);
-          });
-        } else {
-          _showError('Réponse de l\'IA vide ou invalide.');
-        }
-      } else {
+        setState(() {
+          _messages.add(aiResponseContent);
+        });
+            } else {
         _showError('Aucune réponse valide de l\'IA reçue.');
       }
 
