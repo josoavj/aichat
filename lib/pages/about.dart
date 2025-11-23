@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart'; // Import pour TapGestureRecognizer
+// Import pour TapGestureRecognizer
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart'; // Utilisation directe de url_launcher
