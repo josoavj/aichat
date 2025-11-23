@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../data/users.dart';
 import '../screens/chatscreen.dart';
+import '../services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -70,7 +70,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            height: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
+            height: MediaQuery.of(context).size.height -
+                MediaQuery.of(context).padding.top,
             padding: const EdgeInsets.all(24),
             child: FadeTransition(
               opacity: _fadeInAnimation,
@@ -179,7 +180,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         labelText: "Mot de passe",
         prefixIcon: const Icon(CupertinoIcons.lock_fill),
         suffixIcon: IconButton(
-          icon: Icon(_isObscure ? CupertinoIcons.eye_slash_fill : CupertinoIcons.eye_fill),
+          icon: Icon(_isObscure
+              ? CupertinoIcons.eye_slash_fill
+              : CupertinoIcons.eye_fill),
           onPressed: () {
             setState(() {
               _isObscure = !_isObscure;
@@ -217,20 +220,21 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         ),
         child: _isLoading
             ? SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
-          ),
-        )
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
+                ),
+              )
             : Text(
-          "Se connecter",
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+                "Se connecter",
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
       ),
     );
   }
@@ -275,7 +279,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   // Nouveau widget pour le bouton de basculement qui affiche le dialogue
-  Widget _buildTestAccountsToggle(ColorScheme colorScheme, TextTheme textTheme) {
+  Widget _buildTestAccountsToggle(
+      ColorScheme colorScheme, TextTheme textTheme) {
     return InkWell(
       onTap: () {
         _showTestAccountsDialog();
@@ -284,7 +289,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Row(
           children: [
-            Expanded(child: Divider(color: colorScheme.onSurface.withOpacity(0.3))),
+            Expanded(
+                child: Divider(color: colorScheme.onSurface.withOpacity(0.3))),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -306,7 +312,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 ],
               ),
             ),
-            Expanded(child: Divider(color: colorScheme.onSurface.withOpacity(0.3))),
+            Expanded(
+                child: Divider(color: colorScheme.onSurface.withOpacity(0.3))),
           ],
         ),
       ),
@@ -359,7 +366,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       decoration: BoxDecoration(
                         color: Colors.green,
                         shape: BoxShape.circle,
-                        border: Border.all(color: colorScheme.surface, width: 2),
+                        border:
+                            Border.all(color: colorScheme.surface, width: 2),
                       ),
                     ),
                   ),
@@ -445,7 +453,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                   description: "Designer · Fianarantsoa",
                   isOnline: false,
                   onTap: () {
-                    _fillCredentials("marie_dev", "password456");
+                    _fillCredentials("marie_dev", "marie2024");
                     Navigator.of(context).pop();
                   },
                   colorScheme: colorScheme,
@@ -459,7 +467,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("Fermer", style: GoogleFonts.poppins(color: colorScheme.primary)),
+              child: Text("Fermer",
+                  style: GoogleFonts.poppins(color: colorScheme.primary)),
             ),
           ],
         );
@@ -507,49 +516,73 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         _isLoading = true;
       });
 
-      await Future.delayed(const Duration(milliseconds: 1500));
-
       final username = _usernameController.text.trim();
       final password = _passwordController.text.trim();
 
-      bool loginSuccess = false;
+      try {
+        final authService = AuthService();
+        await authService.initialize();
+        await authService.login(
+          username,
+          password,
+          rememberMe: _rememberMe,
+        );
 
-      if ((username == "sudoted" && password == "password123") ||
-          (username == "marie_dev" && password == "password456")) {
-        loginSuccess = UserManager.login(username, password);
-      }
+        setState(() {
+          _isLoading = false;
+        });
 
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (loginSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Connexion réussie! Bienvenue ${UserManager.currentUser?.fullName}",
-              style: GoogleFonts.poppins(),
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Connexion réussie! Bienvenue ${authService.currentUser?.fullName}",
+                style: GoogleFonts.poppins(),
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
             ),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-          ),
-        );
+          );
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const ChatScreen()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Nom d'utilisateur ou mot de passe incorrect",
-              style: GoogleFonts.poppins(),
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const ChatScreen()),
+          );
+        }
+      } on AuthException catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                e.message,
+                style: GoogleFonts.poppins(),
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
             ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
+          );
+        }
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Erreur: ${e.toString()}',
+                style: GoogleFonts.poppins(),
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
       }
     }
   }
@@ -561,17 +594,22 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         final colorScheme = Theme.of(context).colorScheme;
         final textTheme = Theme.of(context).textTheme;
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             "Mot de passe oublié",
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: textTheme.bodyLarge?.color),
+            style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: textTheme.bodyLarge?.color),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 "Entrez votre nom d'utilisateur pour réinitialiser votre mot de passe.",
-                style: GoogleFonts.poppins(fontSize: 14, color: textTheme.bodyMedium?.color),
+                style: GoogleFonts.poppins(
+                    fontSize: 14, color: textTheme.bodyMedium?.color),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -588,7 +626,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             TextButton(
               child: Text(
                 "Annuler",
-                style: GoogleFonts.poppins(fontSize: 14, color: colorScheme.onSurface),
+                style: GoogleFonts.poppins(
+                    fontSize: 14, color: colorScheme.onSurface),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -597,13 +636,13 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             TextButton(
               child: Text(
                 "Envoyer",
-                style: GoogleFonts.poppins(fontSize: 14, color: colorScheme.primary),
+                style: GoogleFonts.poppins(
+                    fontSize: 14, color: colorScheme.primary),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Instructions envoyées par email"))
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text("Instructions envoyées par email")));
               },
             ),
           ],
@@ -619,20 +658,26 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         final colorScheme = Theme.of(context).colorScheme;
         final textTheme = Theme.of(context).textTheme;
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             "Créer un compte",
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: textTheme.bodyLarge?.color),
+            style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: textTheme.bodyLarge?.color),
           ),
           content: Text(
             "La création de compte n'est pas encore disponible. Utilisez les comptes de test pour le moment.",
-            style: GoogleFonts.poppins(fontSize: 14, color: textTheme.bodyMedium?.color),
+            style: GoogleFonts.poppins(
+                fontSize: 14, color: textTheme.bodyMedium?.color),
           ),
           actions: [
             TextButton(
               child: Text(
                 "Compris",
-                style: GoogleFonts.poppins(fontSize: 14, color: colorScheme.primary),
+                style: GoogleFonts.poppins(
+                    fontSize: 14, color: colorScheme.primary),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
