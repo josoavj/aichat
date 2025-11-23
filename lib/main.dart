@@ -23,7 +23,6 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  @override
   Widget build(BuildContext context) {
     // Le Consumer écoute les changements dans ThemeNotifier
     // et reconstruit l'application si le thème change.
@@ -43,7 +42,8 @@ class MyApp extends StatelessWidget {
             '/profile': (context) => const Profile(),
             '/intro': (context) => const Intro(),
           },
-          initialRoute: '/intro',
+          // Affiche l'intro seulement si le thème est initialisé
+          initialRoute: themeNotifier.isInitialized ? '/intro' : '/',
         );
       },
     );

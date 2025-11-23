@@ -8,6 +8,9 @@ import 'package:provider/provider.dart';
 
 import '../data/users.dart';
 import '../others/app_theme.dart';
+import '../services/auth_service.dart';
+import '../services/profile_service.dart';
+import '../utils/account_dialogs.dart';
 import 'login.dart';
 
 class Profile extends StatefulWidget {
@@ -37,7 +40,8 @@ class _ProfileState extends State<Profile> {
         appBar: AppBar(
           title: Text(
             "Mon compte",
-            style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700),
+            style:
+                GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700),
           ),
           centerTitle: true,
         ),
@@ -51,14 +55,10 @@ class _ProfileState extends State<Profile> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(CupertinoIcons.back)
-        ),
+            icon: const Icon(CupertinoIcons.back)),
         title: Text(
           "Mon compte",
-          style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.w700
-          ),
+          style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
         actions: [
@@ -66,8 +66,7 @@ class _ProfileState extends State<Profile> {
               icon: const Icon(Icons.logout_rounded),
               onPressed: () {
                 _showLogoutDialog(context);
-              }
-          )
+              })
         ],
       ),
       body: SingleChildScrollView(
@@ -114,17 +113,18 @@ class _ProfileState extends State<Profile> {
                   backgroundImage: _profileImageFile != null
                       ? FileImage(_profileImageFile!)
                       : currentUser!.profileImageUrl.isNotEmpty
-                      ? NetworkImage(currentUser!.profileImageUrl)
-                      : null,
-                  child: _profileImageFile == null && currentUser!.profileImageUrl.isEmpty
+                          ? NetworkImage(currentUser!.profileImageUrl)
+                          : null,
+                  child: _profileImageFile == null &&
+                          currentUser!.profileImageUrl.isEmpty
                       ? Text(
-                    currentUser!.firstName[0] + currentUser!.lastName[0],
-                    style: GoogleFonts.poppins(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[600],
-                    ),
-                  )
+                          currentUser!.firstName[0] + currentUser!.lastName[0],
+                          style: GoogleFonts.poppins(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[600],
+                          ),
+                        )
                       : null,
                 ),
                 Positioned(
@@ -220,13 +220,17 @@ class _ProfileState extends State<Profile> {
               ),
             ),
             const SizedBox(height: 16),
-            _buildInfoRow("Email", currentUser!.email, CupertinoIcons.mail_solid),
+            _buildInfoRow(
+                "Email", currentUser!.email, CupertinoIcons.mail_solid),
             const SizedBox(height: 12),
-            _buildInfoRow("Téléphone", currentUser!.phone, CupertinoIcons.phone_fill),
+            _buildInfoRow(
+                "Téléphone", currentUser!.phone, CupertinoIcons.phone_fill),
             const SizedBox(height: 12),
-            _buildInfoRow("Localisation", currentUser!.location, CupertinoIcons.location_solid),
+            _buildInfoRow("Localisation", currentUser!.location,
+                CupertinoIcons.location_solid),
             const SizedBox(height: 12),
-            _buildInfoRow("Membre depuis", currentUser!.formattedMemberSince, CupertinoIcons.calendar),
+            _buildInfoRow("Membre depuis", currentUser!.formattedMemberSince,
+                CupertinoIcons.calendar),
           ],
         ),
       ),
@@ -370,29 +374,32 @@ class _ProfileState extends State<Profile> {
               ),
             ),
             const SizedBox(height: 16),
-            _buildActionRow("Changer le mot de passe", CupertinoIcons.lock_fill, () {
+            _buildActionRow("Changer le mot de passe", CupertinoIcons.lock_fill,
+                () {
               _showChangePasswordDialog();
             }),
             const SizedBox(height: 12),
-            _buildActionRow("Historique des activités", CupertinoIcons.time, () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Fonctionnalité en développement"))
-              );
+            _buildActionRow("Historique des activités", CupertinoIcons.time,
+                () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Fonctionnalité en développement")));
             }),
             const SizedBox(height: 12),
-            _buildActionRow("Aide et support", CupertinoIcons.question_circle_fill, () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Contactez-nous à support@example.com"))
-              );
+            _buildActionRow(
+                "Aide et support", CupertinoIcons.question_circle_fill, () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Contactez-nous à support@example.com")));
             }),
             const SizedBox(height: 12),
-            _buildActionRow("Politique de confidentialité", CupertinoIcons.doc_text_fill, () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Politique de confidentialité"))
-              );
+            _buildActionRow(
+                "Politique de confidentialité", CupertinoIcons.doc_text_fill,
+                () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Politique de confidentialité")));
             }),
             const SizedBox(height: 12),
-            _buildActionRow("Supprimer le compte", CupertinoIcons.delete_solid, () {
+            _buildActionRow("Supprimer le compte", CupertinoIcons.delete_solid,
+                () {
               _showDeleteAccountDialog(context);
             }, isDestructive: true),
           ],
@@ -401,7 +408,8 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildActionRow(String title, IconData icon, VoidCallback onTap, {bool isDestructive = false}) {
+  Widget _buildActionRow(String title, IconData icon, VoidCallback onTap,
+      {bool isDestructive = false}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -409,11 +417,8 @@ class _ProfileState extends State<Profile> {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
-            Icon(
-                icon,
-                size: 20,
-                color: isDestructive ? Colors.red : Colors.grey[600]
-            ),
+            Icon(icon,
+                size: 20, color: isDestructive ? Colors.red : Colors.grey[600]),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -454,58 +459,61 @@ class _ProfileState extends State<Profile> {
               ),
             ),
             const SizedBox(height: 16),
-            ...UserManager.allUsers.map((user) =>
-                InkWell(
-                  onTap: () {
-                    UserManager.setCurrentUser(user.id);
-                    setState(() {
-                      currentUser = UserManager.currentUser;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: currentUser!.id == user.id ? Colors.blue.withOpacity(0.1) : null,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 16,
-                          child: Text(
-                            user.firstName[0] + user.lastName[0],
-                            style: const TextStyle(fontSize: 12),
-                          ),
+            ...UserManager.allUsers.map(
+              (user) => InkWell(
+                onTap: () {
+                  UserManager.setCurrentUser(user.id);
+                  setState(() {
+                    currentUser = UserManager.currentUser;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: currentUser!.id == user.id
+                        ? Colors.blue.withOpacity(0.1)
+                        : null,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        child: Text(
+                          user.firstName[0] + user.lastName[0],
+                          style: const TextStyle(fontSize: 12),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                user.fullName,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user.fullName,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
-                              Text(
-                                "@${user.username}",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: Colors.grey[600],
-                                ),
+                            ),
+                            Text(
+                              "@${user.username}",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.grey[600],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        if (currentUser!.id == user.id)
-                          const Icon(Icons.check_circle, color: Colors.blue, size: 20),
-                      ],
-                    ),
+                      ),
+                      if (currentUser!.id == user.id)
+                        const Icon(Icons.check_circle,
+                            color: Colors.blue, size: 20),
+                    ],
                   ),
                 ),
-            ).toList(),
+              ),
+            ),
           ],
         ),
       ),
@@ -517,10 +525,12 @@ class _ProfileState extends State<Profile> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             "Déconnexion",
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+            style:
+                GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           content: Text(
             "Êtes-vous sûr de vouloir vous déconnecter?",
@@ -544,7 +554,8 @@ class _ProfileState extends State<Profile> {
               onPressed: () {
                 Navigator.of(context).pop();
                 UserManager.logout();
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()));
               },
             ),
           ],
@@ -554,91 +565,72 @@ class _ProfileState extends State<Profile> {
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(
-            "Supprimer le compte",
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          content: Text(
-            "Cette action est irréversible. Toutes vos données seront définitivement supprimées.",
-            style: GoogleFonts.poppins(fontSize: 14),
-          ),
-          actions: [
-            TextButton(
-              child: Text(
-                "Annuler",
-                style: GoogleFonts.poppins(fontSize: 14),
+    AccountDialogs.showDeleteAccountDialog(
+      context,
+      onConfirm: (password) async {
+        try {
+          final authService = AuthService();
+          await authService.initialize();
+          await authService.deleteAccount(password);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Compte supprimé avec succès'),
+                backgroundColor: Colors.green,
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text(
-                "Supprimer",
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.red),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Logique pour supprimer le compte
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Compte supprimé"))
-                );
-              },
-            ),
-          ],
-        );
+            );
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginPage()),
+            );
+          }
+        } catch (e) {
+          rethrow;
+        }
       },
     );
   }
 
   void _showEditDialog(String field, String currentValue) {
-    final controller = TextEditingController(text: currentValue);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(
-            "Modifier $field",
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              labelText: field,
-              border: const OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: Text(
-                "Annuler",
-                style: GoogleFonts.poppins(fontSize: 14),
+    final profileService = ProfileService();
+
+    AccountDialogs.showEditProfileDialog(
+      context,
+      firstName: currentUser?.firstName ?? '',
+      lastName: currentUser?.lastName ?? '',
+      email: currentUser?.email ?? '',
+      phone: currentUser?.phone ?? '',
+      location: currentUser?.location ?? '',
+      bio: currentUser?.bio ?? '',
+      onSave: (values) async {
+        try {
+          await profileService.initialize();
+          await profileService.updateProfile(
+            firstName: values['firstName'] ?? '',
+            lastName: values['lastName'] ?? '',
+            email: values['email'] ?? '',
+            phone: values['phone'] ?? '',
+            location: values['location'] ?? '',
+            bio: values['bio'] ?? '',
+          );
+
+          setState(() {
+            currentUser = UserManager.currentUser;
+          });
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Profil mis à jour avec succès'),
+                backgroundColor: Colors.green,
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text(
-                "Sauvegarder",
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.blue),
-              ),
-              onPressed: () {
-                // Ici vous pouvez ajouter la logique pour sauvegarder les modifications
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("$field modifié avec succès"))
-                );
-              },
-            ),
-          ],
-        );
+            );
+          }
+        } catch (e) {
+          rethrow;
+        }
       },
     );
   }
@@ -668,7 +660,7 @@ class _ProfileState extends State<Profile> {
                 title: const Text("Prendre une photo"),
                 onTap: () {
                   Navigator.pop(context);
-                  // Logique pour prendre une photo
+                  _capturePhotoFromCamera();
                 },
               ),
               ListTile(
@@ -678,7 +670,7 @@ class _ProfileState extends State<Profile> {
                   Navigator.pop(context);
                   final ImagePicker picker = ImagePicker();
                   final XFile? pickedFile =
-                  await picker.pickImage(source: ImageSource.gallery);
+                      await picker.pickImage(source: ImageSource.gallery);
                   if (pickedFile != null) {
                     setState(() {
                       _profileImageFile = File(pickedFile.path);
@@ -693,68 +685,37 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  void _capturePhotoFromCamera() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _profileImageFile = File(pickedFile.path);
+      });
+    }
+  }
+
   void _showChangePasswordDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(
-            "Changer le mot de passe",
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Mot de passe actuel",
-                  border: OutlineInputBorder(),
-                ),
+    AccountDialogs.showChangePasswordDialog(
+      context,
+      onSave: (oldPassword, newPassword) async {
+        try {
+          final authService = AuthService();
+          await authService.initialize();
+          await authService.changePassword(oldPassword, newPassword);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Mot de passe modifié avec succès'),
+                backgroundColor: Colors.green,
               ),
-              const SizedBox(height: 16),
-              TextField(
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Nouveau mot de passe",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Confirmer le nouveau mot de passe",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              child: Text(
-                "Annuler",
-                style: GoogleFonts.poppins(fontSize: 14),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text(
-                "Changer",
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.blue),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Mot de passe modifié avec succès"))
-                );
-              },
-            ),
-          ],
-        );
+            );
+          }
+        } catch (e) {
+          rethrow;
+        }
       },
     );
   }

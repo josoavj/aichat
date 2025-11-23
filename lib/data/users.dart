@@ -12,6 +12,7 @@ class User {
   final String firstName;
   final String lastName;
   final String bio;
+  final String passwordHash;
 
   User({
     required this.id,
@@ -27,14 +28,25 @@ class User {
     required this.firstName,
     required this.lastName,
     required this.bio,
+    required this.passwordHash,
   });
 
   String get fullName => '$firstName $lastName';
 
   String get formattedMemberSince {
     final months = [
-      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+      'Janvier',
+      'Février',
+      'Mars',
+      'Avril',
+      'Mai',
+      'Juin',
+      'Juillet',
+      'Août',
+      'Septembre',
+      'Octobre',
+      'Novembre',
+      'Décembre'
     ];
     return '${months[memberSince.month - 1]} ${memberSince.year}';
   }
@@ -53,6 +65,7 @@ class User {
     String? firstName,
     String? lastName,
     String? bio,
+    String? passwordHash,
   }) {
     return User(
       id: id ?? this.id,
@@ -68,6 +81,7 @@ class User {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       bio: bio ?? this.bio,
+      passwordHash: passwordHash ?? this.passwordHash,
     );
   }
 }
@@ -75,6 +89,14 @@ class User {
 // Gestionnaire d'utilisateurs avec données factices
 class UserManager {
   static User? _currentUser;
+
+  // Hash SHA-256 pour les mots de passe (précalculés pour la démo)
+  // sudoted -> "password123"
+  static const String _hashedPassword1 =
+      '0b14aeb4ac9b9eefba6bc633424cdeae0ee3aa5772a37049fec998e47463ba61';
+  // marie_dev -> "marie2024"
+  static const String _hashedPassword2 =
+      'b88d3b6ec0e9febe0e3825b67195ad6cc27e17afd889e9e3d00a6f0e1eac10e3';
 
   // Données factices pour deux utilisateurs
   static final List<User> _users = [
@@ -84,14 +106,16 @@ class UserManager {
       email: 'sudoted@example.com',
       phone: '+261 34 12 345 67',
       location: 'Antananarivo, Madagascar',
-      profileImageUrl: '', // Vide pour utiliser l'avatar par défaut
+      profileImageUrl: '',
       memberSince: DateTime(2024, 1, 15),
       isOnline: true,
       notificationsEnabled: true,
       darkModeEnabled: false,
       firstName: 'Sudo',
       lastName: 'Ted',
-      bio: 'Développeur passionné par les nouvelles technologies et l\'intelligence artificielle.',
+      bio:
+          'Développeur passionné par les nouvelles technologies et l\'intelligence artificielle.',
+      passwordHash: _hashedPassword1,
     ),
     User(
       id: '2',
@@ -99,51 +123,94 @@ class UserManager {
       email: 'marie.rakoto@gmail.com',
       phone: '+261 32 98 765 43',
       location: 'Fianarantsoa, Madagascar',
-      profileImageUrl: '', // Vide pour utiliser l'avatar par défaut
+      profileImageUrl: '',
       memberSince: DateTime(2023, 8, 22),
       isOnline: false,
       notificationsEnabled: false,
       darkModeEnabled: true,
       firstName: 'Marie',
       lastName: 'Rakoto',
-      bio: 'Designer UX/UI et développeuse mobile. Aime créer des interfaces intuitives et modernes.',
+      bio:
+          'Designer UX/UI et développeuse mobile. Aime créer des interfaces intuitives et modernes.',
+      passwordHash: _hashedPassword2,
     ),
   ];
 
-  // Obtenir l'utilisateur actuel
+  /// Obtenir l'utilisateur actuel
   static User? get currentUser => _currentUser;
 
-  // Définir l'utilisateur actuel
-  static void setCurrentUser(String userId) {
-    _currentUser = _users.firstWhere(
-          (user) => user.id == userId,
-      orElse: () => _users.first, // Par défaut, prendre le premier utilisateur
-    );
-  }
-
-  // Obtenir tous les utilisateurs
+  /// Obtenir tous les utilisateurs
   static List<User> get allUsers => List.unmodifiable(_users);
 
-  // Mettre à jour l'utilisateur actuel
-  static void updateCurrentUser(User updatedUser) {
-    if (_currentUser != null) {
-      final index = _users.indexWhere((user) => user.id == updatedUser.id);
-      if (index != -1) {
-        _users[index] = updatedUser;
+  /// Obtenir un utilisateur par ID
+  static User? getUserById(String userId) {
+    try {
+      return _users.firstWhere((user) => user.id == userId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Obtenir un utilisateur par nom d'utilisateur
+  static User? getUserByUsername(String username) {
+    try {
+      return _users.firstWhere((user) => user.username == username);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Obtenir un utilisateur par email
+  static User? getUserByEmail(String email) {
+    try {
+      return _users.firstWhere((user) => user.email == email);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Définir l'utilisateur actuel
+  static void setCurrentUser(String userId) {
+    _currentUser = getUserById(userId) ?? _users.first;
+  }
+
+  /// Mettre à jour un utilisateur
+  static void updateUser(User updatedUser) {
+    final index = _users.indexWhere((user) => user.id == updatedUser.id);
+    if (index != -1) {
+      _users[index] = updatedUser;
+      if (_currentUser?.id == updatedUser.id) {
         _currentUser = updatedUser;
       }
     }
   }
 
-  // Changer le statut en ligne
+  /// Supprimer un utilisateur
+  static void deleteUser(String userId) {
+    _users.removeWhere((user) => user.id == userId);
+    if (_currentUser?.id == userId) {
+      _currentUser = null;
+    }
+  }
+
+  /// Mettre à jour l'utilisateur actuel
+  static void updateCurrentUser(User updatedUser) {
+    if (_currentUser != null) {
+      updateUser(updatedUser);
+      _currentUser = updatedUser;
+    }
+  }
+
+  /// Changer le statut en ligne
   static void toggleOnlineStatus() {
     if (_currentUser != null) {
-      final updatedUser = _currentUser!.copyWith(isOnline: !_currentUser!.isOnline);
+      final updatedUser =
+          _currentUser!.copyWith(isOnline: !_currentUser!.isOnline);
       updateCurrentUser(updatedUser);
     }
   }
 
-  // Mettre à jour les paramètres de notification
+  /// Mettre à jour les paramètres de notification
   static void updateNotificationSettings(bool enabled) {
     if (_currentUser != null) {
       final updatedUser = _currentUser!.copyWith(notificationsEnabled: enabled);
@@ -151,7 +218,7 @@ class UserManager {
     }
   }
 
-  // Mettre à jour les paramètres du mode sombre
+  /// Mettre à jour les paramètres du mode sombre
   static void updateDarkModeSettings(bool enabled) {
     if (_currentUser != null) {
       final updatedUser = _currentUser!.copyWith(darkModeEnabled: enabled);
@@ -159,30 +226,15 @@ class UserManager {
     }
   }
 
-  // Simuler une connexion
-  static bool login(String username, String password) {
-    // Simulation simple - dans un vrai projet, vous auriez une vraie authentification
-    final user = _users.firstWhere(
-          (user) => user.username == username,
-      orElse: () => _users.first,
-    );
-
-    if (user != null) {
-      setCurrentUser(user.id);
-      return true;
-    }
-    return false;
-  }
-
-  // Déconnexion
-  static void logout() {
-    _currentUser = null;
-  }
-
-  // Initialiser avec un utilisateur par défaut
+  /// Initialiser avec un utilisateur par défaut
   static void initialize() {
     if (_currentUser == null) {
-      setCurrentUser('1'); // Utiliser sudoted par défaut
+      setCurrentUser('1');
     }
+  }
+
+  /// Déconnexion
+  static void logout() {
+    _currentUser = null;
   }
 }

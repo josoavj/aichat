@@ -27,25 +27,26 @@ class _SettingsState extends State<Settings> {
     _loadSettings();
   }
 
-  // Charge les paramètres utilisateur sauvegardés
-  void _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
+  // Charge les paramètres utilisateur depuis le ThemeNotifier
+  void _loadSettings() {
+    final themeProvider = Provider.of<ThemeNotifier>(context, listen: false);
     setState(() {
-      _currentFontSize = prefs.getDouble('font_size') ?? 1.0;
-      _hapticFeedbackEnabled = prefs.getBool('haptic_feedback_enabled') ?? true;
+      _currentFontSize = themeProvider.fontSize;
+      _hapticFeedbackEnabled = themeProvider.hapticFeedbackEnabled;
     });
   }
 
-  // Sauvegarde les paramètres utilisateur
+  // Sauvegarde les paramètres utilisateur via le ThemeNotifier
   void _saveSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('font_size', _currentFontSize);
-    await prefs.setBool('haptic_feedback_enabled', _hapticFeedbackEnabled);
+    final themeProvider = Provider.of<ThemeNotifier>(context, listen: false);
+    await themeProvider.setFontSizeAsync(_currentFontSize);
+    await themeProvider.setHapticFeedbackAsync(_hapticFeedbackEnabled);
   }
 
   // Fonction pour afficher le dialogue de sélection de couleur
   void showColorPickerDialog() {
-    Color pickerColor = Provider.of<ThemeNotifier>(context, listen: false).primarySwatch;
+    Color pickerColor =
+        Provider.of<ThemeNotifier>(context, listen: false).primarySwatch;
     showDialog(
       context: context,
       builder: (context) {
@@ -93,7 +94,8 @@ class _SettingsState extends State<Settings> {
   void showApiKeyDialog() async {
     final prefs = await SharedPreferences.getInstance();
     final currentKey = prefs.getString('gemini_api_key') ?? '';
-    final TextEditingController keyController = TextEditingController(text: currentKey);
+    final TextEditingController keyController =
+        TextEditingController(text: currentKey);
 
     showDialog(
       context: context,
@@ -123,7 +125,9 @@ class _SettingsState extends State<Settings> {
                   if (mounted) {
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Clé API mise à jour.', style: GoogleFonts.poppins())),
+                      SnackBar(
+                          content: Text('Clé API mise à jour.',
+                              style: GoogleFonts.poppins())),
                     );
                   }
                 }
@@ -151,7 +155,9 @@ class _SettingsState extends State<Settings> {
       builder: (context) {
         return AlertDialog(
           title: Text('Effacer l\'historique?', style: GoogleFonts.poppins()),
-          content: Text('Êtes-vous sûr de vouloir effacer toutes les conversations?', style: GoogleFonts.poppins()),
+          content: Text(
+              'Êtes-vous sûr de vouloir effacer toutes les conversations?',
+              style: GoogleFonts.poppins()),
           actions: [
             TextButton(
               onPressed: () {
@@ -162,11 +168,14 @@ class _SettingsState extends State<Settings> {
             ElevatedButton(
               onPressed: () async {
                 final prefs = await SharedPreferences.getInstance();
-                await prefs.remove('chat_history'); // Supprime l'historique (clé fictive)
+                await prefs.remove(
+                    'chat_history'); // Supprime l'historique (clé fictive)
                 if (mounted) {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Historique effacé.', style: GoogleFonts.poppins())),
+                    SnackBar(
+                        content: Text('Historique effacé.',
+                            style: GoogleFonts.poppins())),
                   );
                 }
               },
@@ -221,12 +230,13 @@ class _SettingsState extends State<Settings> {
                   : Icons.light_mode,
               color: currentTheme.primaryColor,
             ),
-            activeColor: currentTheme.primaryColor,
+            activeThumbColor: currentTheme.primaryColor,
           ),
           const Divider(),
           // Nouvelle option pour la taille de la police
           ListTile(
-            leading: Icon(Icons.font_download, color: currentTheme.primaryColor),
+            leading:
+                Icon(Icons.font_download, color: currentTheme.primaryColor),
             title: Text(
               'Taille de la police',
               style: GoogleFonts.poppins(),
@@ -266,7 +276,7 @@ class _SettingsState extends State<Settings> {
               _hapticFeedbackEnabled ? Icons.vibration : Icons.not_interested,
               color: currentTheme.primaryColor,
             ),
-            activeColor: currentTheme.primaryColor,
+            activeThumbColor: currentTheme.primaryColor,
           ),
           const Divider(),
           // Nouvelle option pour changer la clé API
@@ -285,7 +295,8 @@ class _SettingsState extends State<Settings> {
           const Divider(),
           // Option pour effacer l'historique du chat
           ListTile(
-            leading: Icon(Icons.delete_forever, color: currentTheme.colorScheme.error),
+            leading: Icon(Icons.delete_forever,
+                color: currentTheme.colorScheme.error),
             title: Text('Effacer l\'historique', style: GoogleFonts.poppins()),
             subtitle: Text(
               'Supprimer toutes les conversations passées',

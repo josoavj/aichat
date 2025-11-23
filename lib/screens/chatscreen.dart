@@ -1,13 +1,11 @@
-import 'package:ai_test/api/api_call.dart';
+import 'package:ai_test/screens/enhanced_api_key_widget.dart';
+import 'package:ai_test/screens/enhanced_chat_widget.dart';
+import 'package:ai_test/services/api_manager.dart';
 import 'package:ai_test/others/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'chatwidget.dart';
-import '../others/screenswidget.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -25,21 +23,46 @@ class _ChatScreenState extends State<ChatScreen> {
     _loadApiKey();
   }
 
-  // Chargement de la clé API depuis SharedPreferences
+  // Chargement de la clé API depuis l'API Manager
   Future<void> _loadApiKey() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      apiKey = prefs.getString('gemini_api_key');
-    });
+    try {
+      final key = await ApiManager.getApiKey();
+      setState(() {
+        apiKey = key;
+      });
+    } catch (e) {
+      // Clé API non trouvée, l'utilisateur devra la saisir
+      setState(() {
+        apiKey = null;
+      });
+    }
   }
 
   // Fonction pour gérer la soumission de la clé API
   Future<void> _handleApiKeySubmitted(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('gemini_api_key', key);
+    try {
+      await ApiManager.saveApiKey(key);
+      setState(() {
+        apiKey = key;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  // Fonction pour réinitialiser la clé API
+  void _resetApiKey() {
     setState(() {
-      apiKey = key;
+      apiKey = null;
     });
+    ApiManager.deleteApiKey();
   }
 
   // Fonction pour afficher la boîte de dialogue de confirmation de sortie
@@ -50,7 +73,8 @@ class _ChatScreenState extends State<ChatScreen> {
         return AlertDialog(
           title: Text(
             "Quitter l'application",
-            style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
+            style:
+                GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           content: Text(
             "Vous êtes sur le point de quitter l'application. Voulez-vous continuer ?",
@@ -89,7 +113,6 @@ class _ChatScreenState extends State<ChatScreen> {
     // Utilisation de Consumer pour écouter les changements de thème
     return Consumer<ThemeNotifier>(
       builder: (context, themeNotifier, child) {
-        final ThemeData theme = Theme.of(context);
         return Scaffold(
           appBar: AppBar(
             title: Text(
@@ -117,8 +140,13 @@ class _ChatScreenState extends State<ChatScreen> {
             onExit: _showExitConfirmationDialog,
           ),
           body: switch (apiKey) {
-            final providedKey? => ChatWidget(apiKey: providedKey),
-            _ => ApiKeyWidget(onSubmitted: _handleApiKeySubmitted),
+            final providedKey? => EnhancedChatWidget(
+                apiKey: providedKey,
+                onApiKeyInvalid: _resetApiKey,
+              ),
+            _ => EnhancedApiKeyWidget(
+                onSubmitted: _handleApiKeySubmitted,
+              ),
           },
         );
       },

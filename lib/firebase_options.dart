@@ -61,7 +61,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '189186346211',
     projectId: 'ai-assistant-1d89a',
     storageBucket: 'ai-assistant-1d89a.appspot.com',
-    iosBundleId: 'com.example.aiTest',
+    iosBundleId: 'com.example.ai_test',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -70,7 +70,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '189186346211',
     projectId: 'ai-assistant-1d89a',
     storageBucket: 'ai-assistant-1d89a.appspot.com',
-    iosBundleId: 'com.example.aiTest',
+    iosBundleId: 'com.example.ai_test',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
