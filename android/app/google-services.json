@@ -2,14 +2,14 @@
   "project_info": {
     "project_number": "189186346211",
     "project_id": "ai-assistant-1d89a",
-    "storage_bucket": "ai-assistant-1d89a.appspot.com"
+    "storage_bucket": "ai-assistant-1d89a.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:189186346211:android:4c5259198380de718449d6",
         "android_client_info": {
-          "package_name": "com.example.ai_test"
+          "package_name": "ai.assistant"
         }
       },
       "oauth_client": [],

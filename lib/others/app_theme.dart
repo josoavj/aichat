@@ -32,6 +32,21 @@ class ThemeNotifier with ChangeNotifier {
     _initializePreferences();
   }
 
+  /// Initialise SharedPreferences de manière synchrone pour le démarrage
+  /// À appeler dans main() avant de démarrer l'app
+  Future<void> initializeSync() async {
+    try {
+      _prefs = await SharedPreferences.getInstance();
+      await _loadThemeSettings();
+      _isInitialized = true;
+      notifyListeners();
+    } catch (e) {
+      print('Erreur lors de l\'initialisation des préférences: $e');
+      _isInitialized = true;
+      notifyListeners();
+    }
+  }
+
   /// Initialise SharedPreferences de manière asynchrone au démarrage
   Future<void> _initializePreferences() async {
     try {
