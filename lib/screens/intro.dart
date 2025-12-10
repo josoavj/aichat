@@ -1,7 +1,6 @@
+import 'package:ai_test/pages/firebase_login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../pages/login.dart';
-
 class Intro extends StatefulWidget {
   const Intro({super.key});
 
@@ -53,7 +52,7 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
+          MaterialPageRoute(builder: (context) => const FirebaseLoginPage()),
         );
       }
     });
@@ -68,7 +67,6 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
     final avatarDiameter = screenWidth * 0.4;
 
     return Scaffold(
@@ -93,10 +91,11 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
                 child: ScaleTransition(
                   scale: _scaleAnimation,
                   child: SizedBox(
-                    width: avatarDiameter,  // Utiliser la taille dynamique
+                    width: avatarDiameter, // Utiliser la taille dynamique
                     height: avatarDiameter, // Utiliser la taille dynamique
                     child: CircleAvatar(
-                      radius: avatarDiameter / 2, // Le rayon est la moitié du diamètre
+                      radius: avatarDiameter /
+                          2, // Le rayon est la moitié du diamètre
                       foregroundImage: const AssetImage(
                         "assets/images/todoroki.png",
                       ),

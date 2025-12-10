@@ -1,3 +1,4 @@
+import 'package:ai_test/pages/firebase_login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,9 +6,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
-
 import '../others/app_theme.dart';
-import 'login.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -144,7 +143,7 @@ class _SettingsState extends State<Settings> {
   void _handleLogout() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
+      MaterialPageRoute(builder: (context) => const FirebaseLoginPage()),
     );
   }
 
