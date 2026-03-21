@@ -1,19 +1,55 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class FirebaseAuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  late final FirebaseAuth _auth;
+  bool _isInitialized = false;
+
+  FirebaseAuthService() {
+    _initializeAuth();
+  }
+
+  void _initializeAuth() {
+    try {
+      // Vérifier si Firebase est initialisé
+      if (Firebase.apps.isNotEmpty) {
+        _auth = FirebaseAuth.instance;
+        _isInitialized = true;
+        print('✓ FirebaseAuth initialisé');
+      } else {
+        print('⚠️  Firebase n\'est pas initialisé');
+        _isInitialized = false;
+      }
+    } catch (e) {
+      print('❌ Erreur lors de l\'initialisation de FirebaseAuth: $e');
+      _isInitialized = false;
+    }
+  }
+
+  bool get isAvailable => _isInitialized && Firebase.apps.isNotEmpty;
 
   /// Récupérer l'utilisateur actuellement connecté
-  User? get currentUser => _auth.currentUser;
+  User? get currentUser {
+    if (!isAvailable) return null;
+    return _auth.currentUser;
+  }
 
   /// Stream pour écouter les changements d'authentification
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<User?> get authStateChanges {
+    if (!isAvailable) {
+      return Stream.value(null);
+    }
+    return _auth.authStateChanges();
+  }
 
   /// Créer un compte avec email et mot de passe
   Future<UserCredential> signUpWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
+    if (!isAvailable) {
+      throw 'Firebase n\'est pas disponible sur cette plateforme';
+    }
     try {
       final credential = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -32,6 +68,9 @@ class FirebaseAuthService {
     required String email,
     required String password,
   }) async {
+    if (!isAvailable) {
+      throw 'Firebase n\'est pas disponible sur cette plateforme';
+    }
     try {
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -47,6 +86,9 @@ class FirebaseAuthService {
 
   /// Réinitialiser le mot de passe
   Future<void> resetPassword({required String email}) async {
+    if (!isAvailable) {
+      throw 'Firebase n\'est pas disponible sur cette plateforme';
+    }
     try {
       await _auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
@@ -61,6 +103,7 @@ class FirebaseAuthService {
     String? displayName,
     String? photoUrl,
   }) async {
+    if (!isAvailable) return;
     try {
       final user = _auth.currentUser;
       if (user != null) {
@@ -76,6 +119,7 @@ class FirebaseAuthService {
 
   /// Changer l'email
   Future<void> updateEmail({required String newEmail}) async {
+    if (!isAvailable) return;
     try {
       final user = _auth.currentUser;
       if (user != null) {
@@ -88,6 +132,7 @@ class FirebaseAuthService {
 
   /// Changer le mot de passe
   Future<void> changePassword({required String newPassword}) async {
+    if (!isAvailable) return;
     try {
       final user = _auth.currentUser;
       if (user != null) {
@@ -100,6 +145,7 @@ class FirebaseAuthService {
 
   /// Se déconnecter
   Future<void> signOut() async {
+    if (!isAvailable) return;
     try {
       await _auth.signOut();
     } catch (e) {
@@ -109,6 +155,7 @@ class FirebaseAuthService {
 
   /// Supprimer le compte utilisateur
   Future<void> deleteAccount() async {
+    if (!isAvailable) return;
     try {
       final user = _auth.currentUser;
       if (user != null) {
@@ -121,6 +168,7 @@ class FirebaseAuthService {
 
   /// Vérifier l'email
   Future<void> sendEmailVerification() async {
+    if (!isAvailable) return;
     try {
       final user = _auth.currentUser;
       if (user != null && !user.emailVerified) {

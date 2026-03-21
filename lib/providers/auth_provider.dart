@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ai_test/services/firebase_service.dart';
 
 /// Provider pour gérer l'état d'authentification
 class AuthProvider extends ChangeNotifier {
   final firebaseService = FirebaseService();
+  bool _isFirebaseAvailable = true;
 
   User? _currentUser;
   bool _isLoading = false;
@@ -15,13 +17,20 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _currentUser != null;
   String? get errorMessage => _errorMessage;
+  bool get isFirebaseAvailable => _isFirebaseAvailable;
 
   AuthProvider() {
     // Initialiser en écoutant les changements d'authentification
-    firebaseService.auth.authStateChanges.listen((user) {
-      _currentUser = user;
-      notifyListeners();
-    });
+    try {
+      firebaseService.auth.authStateChanges.listen((user) {
+        _currentUser = user;
+        notifyListeners();
+      });
+    } catch (e) {
+      print('⚠️  Firebase non disponible: $e');
+      _isFirebaseAvailable = false;
+      _errorMessage = 'Firebase est indisponible pour cette plateforme';
+    }
   }
 
   /// Créer un compte
