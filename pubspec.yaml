@@ -34,8 +34,8 @@ dependencies:
   # UI & Design
   cupertino_icons: ^1.0.6
   flutter_markdown: ^0.7.3
-  google_fonts: ^6.2.1
-  font_awesome_flutter: ^10.7.0
+  google_fonts: ^8.0.2
+  font_awesome_flutter: ^11.0.0
   flutter_colorpicker: ^1.1.0
 
   # State Management
