@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:ai_test/services/logger_service.dart';
 
 class FirebaseAuthService {
   late final FirebaseAuth _auth;
@@ -15,13 +16,13 @@ class FirebaseAuthService {
       if (Firebase.apps.isNotEmpty) {
         _auth = FirebaseAuth.instance;
         _isInitialized = true;
-        print('✓ FirebaseAuth initialisé');
+        AppLogger.info('FirebaseAuth initialisé');
       } else {
-        print('⚠️  Firebase n\'est pas initialisé');
+        AppLogger.warning('Firebase n\'est pas initialisé');
         _isInitialized = false;
       }
     } catch (e) {
-      print('❌ Erreur lors de l\'initialisation de FirebaseAuth: $e');
+      AppLogger.error('Erreur lors de l\'initialisation de FirebaseAuth', e);
       _isInitialized = false;
     }
   }
