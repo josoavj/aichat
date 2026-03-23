@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:ai_test/services/logger_service.dart';
 import '../data/users.dart';
 
 class AuthException implements Exception {
@@ -164,7 +165,8 @@ class AuthService {
     UserManager.updateUser(updatedUser);
 
     // Dans un vrai projet: envoyer tempPassword par email
-    print('Mot de passe temporaire: $tempPassword');
+    AppLogger.info(
+        'Mot de passe temporaire réinitialisé pour l\'utilisateur: ${user.id}');
   }
 
   /// Supprimer le compte
