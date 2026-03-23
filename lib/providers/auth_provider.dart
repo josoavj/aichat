@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ai_test/services/firebase_service.dart';
+import 'package:ai_test/services/logger_service.dart';
 
 /// Provider pour gérer l'état d'authentification
 class AuthProvider extends ChangeNotifier {
@@ -27,7 +28,7 @@ class AuthProvider extends ChangeNotifier {
         notifyListeners();
       });
     } catch (e) {
-      print('⚠️  Firebase non disponible: $e');
+      AppLogger.warning('Firebase non disponible', e);
       _isFirebaseAvailable = false;
       _errorMessage = 'Firebase est indisponible pour cette plateforme';
     }

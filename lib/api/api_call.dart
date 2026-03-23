@@ -3,12 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/link.dart';
 
-
-class ApiKeyWidget extends StatelessWidget {
-  ApiKeyWidget({required this.onSubmitted, super.key});
+class ApiKeyWidget extends StatefulWidget {
+  const ApiKeyWidget({required this.onSubmitted, super.key});
 
   final ValueChanged<String> onSubmitted;
-  final TextEditingController _textController = TextEditingController();
+
+  @override
+  State<ApiKeyWidget> createState() => _ApiKeyWidgetState();
+}
+
+class _ApiKeyWidgetState extends State<ApiKeyWidget> {
+  late final TextEditingController _textController;
+
+  @override
+  void initState() {
+    super.initState();
+    _textController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  void _handleSubmit() {
+    if (_textController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Veuillez entrer une clé API.')),
+      );
+      return;
+    }
+    widget.onSubmitted(_textController.text.trim());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +46,13 @@ class ApiKeyWidget extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-               Text(
-                "Pour utiliser votre IA,"
-                "vous devez obtenir une clé API",
+              Text(
+                'Pour utiliser votre IA, vous devez obtenir une clé API',
                 style: GoogleFonts.poppins(
                   fontSize: 13,
-                  color: Colors.white,fontWeight: FontWeight.w700
-                )
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 8),
               Link(
@@ -33,12 +60,15 @@ class ApiKeyWidget extends StatelessWidget {
                 target: LinkTarget.blank,
                 builder: (context, followLink) => TextButton(
                   onPressed: followLink,
-                  child:  AbsorbPointer(
-                    child: Text('Obtenir un clé API', 
+                  child: AbsorbPointer(
+                    child: Text(
+                      'Obtenir une clé API',
                       style: GoogleFonts.poppins(
                         fontSize: 15,
-                        color: Colors.white,fontWeight: FontWeight.w700
-                      ),),
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -47,46 +77,31 @@ class ApiKeyWidget extends StatelessWidget {
                 children: [
                   Expanded(
                     child: TextField(
-                    style: GoogleFonts.poppins(
-                           fontSize: 12,
-                           color: Colors.white,
-                           fontWeight: FontWeight.w400),
-                    obscureText: true,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      obscureText: true,
                       decoration:
-                      textFieldDecoration(context, 'Entrer votre clé d''API'),
+                          textFieldDecoration(context, 'Entrer votre clé API'),
                       controller: _textController,
-                      onSubmitted: (value) {
-                        // Dans la méthode onPressed du TextButton et onSubmitted du TextField:
-                        if (_textController.text.trim().isEmpty) {
-                          // Afficher un message d'erreur, par exemple avec un SnackBar
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Veuillez entrer une clé API.')),
-                          );
-                          return; // Ne pas appeler onSubmitted si le champ est vide
-                        }
-                        onSubmitted(_textController.text.trim());
-                      },
+                      onSubmitted: (_) => _handleSubmit(),
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(width: 5),
                   TextButton(
-                    onPressed: () {
-                      if (_textController.text.trim().isEmpty) {
-                        // Afficher un message d'erreur, par exemple avec un SnackBar
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Veuillez entrer une clé API.')),
-                        );
-                        return; // Ne pas appeler onSubmitted si le champ est vide
-                      }
-                      onSubmitted(_textController.text.trim());
-                    },
+                    onPressed: _handleSubmit,
                     child: AbsorbPointer(
-                      child: Text('Connecter', 
+                      child: Text(
+                        'Connecter',
                         style: GoogleFonts.poppins(
                           fontSize: 15,
-                          color: Colors.white,fontWeight: FontWeight.w800
-                        ),),
-                    )
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -97,4 +112,3 @@ class ApiKeyWidget extends StatelessWidget {
     );
   }
 }
-
