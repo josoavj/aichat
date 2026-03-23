@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ai_test/firebase_options.dart';
+import 'package:ai_test/services/logger_service.dart';
 
 class FirebaseConfig {
   /// Initialiser Firebase avec les options appropriées à la plateforme
@@ -21,7 +22,7 @@ class FirebaseConfig {
             options: DefaultFirebaseOptions.currentPlatform,
           );
         } catch (e) {
-          print('ℹ️  Firebase non configuré pour cette plateforme: $e');
+          AppLogger.info('Firebase non configuré pour cette plateforme: $e');
           // Continuer sans Firebase pour le développement
           return;
         }
@@ -30,9 +31,9 @@ class FirebaseConfig {
           options: DefaultFirebaseOptions.currentPlatform,
         );
       }
-      print('✓ Firebase initialisé avec succès');
+      AppLogger.info('Firebase initialisé avec succès');
     } catch (e) {
-      print('✗ Erreur lors de l\'initialisation de Firebase: $e');
+      AppLogger.error('Erreur lors de l\'initialisation de Firebase', e);
       rethrow;
     }
   }
