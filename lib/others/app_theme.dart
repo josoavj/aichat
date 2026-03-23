@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ai_test/services/logger_service.dart';
 
 /// Clés pour SharedPreferences
 class PreferencesKeys {
@@ -41,7 +42,7 @@ class ThemeNotifier with ChangeNotifier {
       _isInitialized = true;
       notifyListeners();
     } catch (e) {
-      print('Erreur lors de l\'initialisation des préférences: $e');
+      AppLogger.error('Erreur lors de l\'initialisation des préférences', e);
       _isInitialized = true;
       notifyListeners();
     }
@@ -55,7 +56,7 @@ class ThemeNotifier with ChangeNotifier {
       _isInitialized = true;
       notifyListeners();
     } catch (e) {
-      print('Erreur lors de l\'initialisation des préférences: $e');
+      AppLogger.error('Erreur lors de l\'initialisation des préférences', e);
     }
   }
 
@@ -79,7 +80,7 @@ class ThemeNotifier with ChangeNotifier {
         _hapticFeedbackEnabled = hapticFeedback;
       }
     } catch (e) {
-      print('Erreur lors du chargement des paramètres: $e');
+      AppLogger.error('Erreur lors du chargement des paramètres', e);
     }
   }
 
@@ -93,7 +94,7 @@ class ThemeNotifier with ChangeNotifier {
       await _prefs.setInt(PreferencesKeys.themeMode, _currentThemeMode.index);
       notifyListeners();
     } catch (e) {
-      print('Erreur lors du changement de mode de thème: $e');
+      AppLogger.error('Erreur lors du changement de mode de thème', e);
     }
   }
 
@@ -105,7 +106,7 @@ class ThemeNotifier with ChangeNotifier {
       await _prefs.setInt(PreferencesKeys.primaryColorValue, newColor.value);
       notifyListeners();
     } catch (e) {
-      print('Erreur lors du changement de couleur: $e');
+      AppLogger.error('Erreur lors du changement de couleur', e);
     }
   }
 
@@ -117,7 +118,8 @@ class ThemeNotifier with ChangeNotifier {
       await _prefs.setDouble(PreferencesKeys.fontSize, newSize);
       notifyListeners();
     } catch (e) {
-      print('Erreur lors de la mise à jour de la taille de police: $e');
+      AppLogger.error(
+          'Erreur lors de la mise à jour de la taille de police', e);
     }
   }
 
@@ -129,7 +131,7 @@ class ThemeNotifier with ChangeNotifier {
       await _prefs.setBool(PreferencesKeys.hapticFeedback, enabled);
       notifyListeners();
     } catch (e) {
-      print('Erreur lors de la mise à jour du retour haptique: $e');
+      AppLogger.error('Erreur lors de la mise à jour du retour haptique', e);
     }
   }
 }
