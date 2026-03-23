@@ -42,3 +42,38 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /.vscode
+
+# ⚠️  SECURITY: Secrets and API keys
+.env
+.env.*
+!.env.example
+!.env.template
+*.env.local
+*.env.*.local
+
+# Firebase
+**/android/app/google-services.json
+**/android/app/google-services.json.old
+**/android/app/google-services-*.json
+**/google-services.json
+**/Google-Services/
+firebase.json.local
+
+# Private files
+**/.private
+**/private/**
+*.private
+
+# Credentials and secrets
+**/credentials.json
+**/keys/
+**/*.jks
+**/*.p12
+**/*.cer
+**/*.pem
+
+# Dev specific
+.vscode/launch.json
+*.swp
+*.swo
+*~
