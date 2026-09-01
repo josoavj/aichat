@@ -189,133 +189,134 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeNotifier>(context);
-    final ThemeData currentTheme = Theme.of(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Paramètres'),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         children: [
-          // Option pour changer la couleur
-          ListTile(
-            leading: Icon(Icons.color_lens, color: currentTheme.primaryColor),
-            title: Text('Couleur du Thème', style: GoogleFonts.poppins()),
-            subtitle: Text(
-              'Modifier la couleur principale de l\'application',
-              style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600]),
+          _buildSectionHeader("Apparence"),
+          _buildSettingCard([
+            ListTile(
+              leading: _buildIcon(Icons.palette_outlined, theme.primaryColor),
+              title: Text('Couleur du Thème', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+              trailing: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: themeProvider.primarySwatch,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white24),
+                ),
+              ),
+              onTap: showColorPickerDialog,
             ),
-            trailing: CircleAvatar(
-              backgroundColor: themeProvider.primarySwatch,
-              radius: 12,
+            const Divider(indent: 56),
+            SwitchListTile(
+              secondary: _buildIcon(isDark ? Icons.dark_mode : Icons.light_mode, theme.primaryColor),
+              title: Text('Mode Sombre', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+              value: themeProvider.themeMode == ThemeMode.dark,
+              onChanged: (bool value) => themeProvider.toggleThemeMode(),
             ),
-            onTap: showColorPickerDialog,
-          ),
-          const Divider(),
-          // Option pour basculer entre le thème Sombre et Normal
-          SwitchListTile(
-            title: Text(
-              'Mode Sombre',
-              style: GoogleFonts.poppins(),
+          ]),
+          const SizedBox(height: 24),
+          _buildSectionHeader("Interface"),
+          _buildSettingCard([
+            ListTile(
+              leading: _buildIcon(Icons.text_fields, theme.primaryColor),
+              title: Text('Taille du texte', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+              subtitle: Slider(
+                value: _currentFontSize,
+                min: 0.8,
+                max: 1.2,
+                divisions: 4,
+                onChanged: (value) {
+                  setState(() => _currentFontSize = value);
+                  _saveSettings();
+                },
+              ),
             ),
-            value: themeProvider.themeMode == ThemeMode.dark,
-            onChanged: (bool value) {
-              themeProvider.toggleThemeMode();
-            },
-            secondary: Icon(
-              themeProvider.themeMode == ThemeMode.dark
-                  ? Icons.dark_mode
-                  : Icons.light_mode,
-              color: currentTheme.primaryColor,
-            ),
-            activeThumbColor: currentTheme.primaryColor,
-          ),
-          const Divider(),
-          // Nouvelle option pour la taille de la police
-          ListTile(
-            leading:
-                Icon(Icons.font_download, color: currentTheme.primaryColor),
-            title: Text(
-              'Taille de la police',
-              style: GoogleFonts.poppins(),
-            ),
-            subtitle: Slider(
-              value: _currentFontSize,
-              min: 0.8,
-              max: 1.2,
-              divisions: 4,
-              label: _currentFontSize.toStringAsFixed(1),
-              onChanged: (double value) {
-                setState(() {
-                  _currentFontSize = value;
-                });
+            const Divider(indent: 56),
+            SwitchListTile(
+              secondary: _buildIcon(Icons.vibration, theme.primaryColor),
+              title: Text('Retour haptique', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+              value: _hapticFeedbackEnabled,
+              onChanged: (bool value) {
+                setState(() => _hapticFeedbackEnabled = value);
                 _saveSettings();
+                if (value) HapticFeedback.selectionClick();
               },
             ),
-          ),
-          const Divider(),
-          // Option pour activer/désactiver le retour haptique
-          SwitchListTile(
-            title: Text(
-              'Vibrations',
-              style: GoogleFonts.poppins(),
+          ]),
+          const SizedBox(height: 24),
+          _buildSectionHeader("Sécurité & Données"),
+          _buildSettingCard([
+            ListTile(
+              leading: _buildIcon(Icons.key_outlined, theme.primaryColor),
+              title: Text('Clé API Gemini', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+              subtitle: Text('Configurer votre accès à l\'IA', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+              onTap: showApiKeyDialog,
             ),
-            value: _hapticFeedbackEnabled,
-            onChanged: (bool value) {
-              setState(() {
-                _hapticFeedbackEnabled = value;
-              });
-              _saveSettings();
-              if (value) {
-                HapticFeedback.lightImpact();
-              }
-            },
-            secondary: Icon(
-              _hapticFeedbackEnabled ? Icons.vibration : Icons.not_interested,
-              color: currentTheme.primaryColor,
+            const Divider(indent: 56),
+            ListTile(
+              leading: _buildIcon(Icons.delete_outline, Colors.redAccent),
+              title: Text('Effacer l\'historique', style: GoogleFonts.poppins(fontWeight: FontWeight.w500, color: Colors.redAccent)),
+              onTap: _clearChatHistory,
             ),
-            activeThumbColor: currentTheme.primaryColor,
-          ),
-          const Divider(),
-          // Nouvelle option pour changer la clé API
-          ListTile(
-            leading: Icon(Icons.vpn_key, color: currentTheme.primaryColor),
-            title: Text(
-              'Clé API',
-              style: GoogleFonts.poppins(),
+          ]),
+          const SizedBox(height: 32),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: OutlinedButton.icon(
+              icon: const Icon(Icons.logout_rounded),
+              label: const Text("Déconnexion"),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.redAccent,
+                side: const BorderSide(color: Colors.redAccent),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              onPressed: _handleLogout,
             ),
-            subtitle: Text(
-              'Mettre à jour la clé API pour le chat',
-              style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600]),
-            ),
-            onTap: showApiKeyDialog,
-          ),
-          const Divider(),
-          // Option pour effacer l'historique du chat
-          ListTile(
-            leading: Icon(Icons.delete_forever,
-                color: currentTheme.colorScheme.error),
-            title: Text('Effacer l\'historique', style: GoogleFonts.poppins()),
-            subtitle: Text(
-              'Supprimer toutes les conversations passées',
-              style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600]),
-            ),
-            onTap: _clearChatHistory,
-          ),
-          const Divider(),
-          // Option de déconnexion
-          ListTile(
-            leading: Icon(Icons.logout, color: currentTheme.colorScheme.error),
-            title: Text('Déconnexion', style: GoogleFonts.poppins()),
-            subtitle: Text(
-              'Se déconnecter de votre compte',
-              style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600]),
-            ),
-            onTap: _handleLogout,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, bottom: 8),
+      child: Text(
+        title.toUpperCase(),
+        style: GoogleFonts.poppins(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey[600],
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingCard(List<Widget> children) {
+    return Card(
+      child: Column(children: children),
+    );
+  }
+
+  Widget _buildIcon(IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Icon(icon, color: color, size: 20),
     );
   }
 }
