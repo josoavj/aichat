@@ -51,7 +51,7 @@ dependencies:
   google_generative_ai: ^0.4.3
   url_launcher: ^6.3.0
   shared_preferences: ^2.5.3
-  flutter_secure_storage: ^10.3.0
+  flutter_secure_storage: ^11.0.0
   logger: ^2.2.0
   image_picker: ^1.2.0
   crypto: ^3.0.3
@@ -59,6 +59,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  mocktail: ^1.0.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
