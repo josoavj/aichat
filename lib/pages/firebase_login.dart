@@ -106,36 +106,47 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage>
     }
   }
 
-  @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: FadeTransition(
-            opacity: _fadeInAnimation,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Consumer<AuthProvider>(
-                builder: (context, authProvider, child) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: 40),
-                      _buildHeader(colorScheme, textTheme),
-                      const SizedBox(height: 48),
-                      _buildForm(colorScheme),
-                      const SizedBox(height: 32),
-                      _buildSubmitButton(authProvider, colorScheme, textTheme),
-                      const SizedBox(height: 16),
-                      _buildToggleMode(colorScheme, textTheme),
-                      const SizedBox(height: 40),
-                    ],
-                  );
-                },
+      body: Container(
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDark 
+              ? [const Color(0xFF1A1A1A), const Color(0xFF0F0F0F)]
+              : [const Color(0xFFF8F9FA), const Color(0xFFE9ECEF)],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: FadeTransition(
+              opacity: _fadeInAnimation,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 28),
+                child: Consumer<AuthProvider>(
+                  builder: (context, authProvider, child) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 60),
+                        _buildHeader(colorScheme, theme.textTheme, isDark),
+                        const SizedBox(height: 50),
+                        _buildForm(colorScheme, isDark),
+                        const SizedBox(height: 40),
+                        _buildSubmitButton(authProvider, colorScheme),
+                        const SizedBox(height: 24),
+                        _buildToggleMode(colorScheme, theme.textTheme),
+                        const SizedBox(height: 40),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -144,122 +155,92 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage>
     );
   }
 
-  Widget _buildHeader(ColorScheme colorScheme, TextTheme textTheme) {
+  Widget _buildHeader(ColorScheme colorScheme, TextTheme textTheme, bool isDark) {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: colorScheme.primary.withOpacity(0.1),
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
           ),
           child: Icon(
-            CupertinoIcons.person_circle_fill,
-            size: 64,
+            _isSignup ? CupertinoIcons.person_add_solid : CupertinoIcons.lock_shield_fill,
+            size: 48,
             color: colorScheme.primary,
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         Text(
-          _isSignup ? "Créer un compte" : "Connexion",
+          _isSignup ? "Créer un compte" : "Bienvenue !",
           style: GoogleFonts.poppins(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            color: textTheme.titleLarge?.color,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Text(
           _isSignup
-              ? "Créez votre compte pour continuer"
-              : "Connectez-vous à votre compte",
+              ? "Rejoignez l'aventure avec MyAI"
+              : "Heureux de vous revoir parmi nous",
+          textAlign: TextAlign.center,
           style: GoogleFonts.poppins(
             fontSize: 16,
-            color: textTheme.bodyMedium?.color,
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w400,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildForm(ColorScheme colorScheme) {
+  Widget _buildForm(ColorScheme colorScheme, bool isDark) {
     return Form(
       key: _formKey,
       child: Column(
         children: [
           if (_isSignup) ...[
-            TextFormField(
+            _buildTextField(
               controller: _nameController,
-              decoration: InputDecoration(
-                labelText: "Nom complet",
-                prefixIcon: const Icon(CupertinoIcons.person_fill),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: colorScheme.surface,
-              ),
+              label: "Nom complet",
+              icon: CupertinoIcons.person,
+              colorScheme: colorScheme,
+              isDark: isDark,
               validator: (value) {
                 if (_isSignup && (value == null || value.isEmpty)) {
-                  return "Veuillez entrer votre nom";
+                  return "Entrez votre nom";
                 }
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
           ],
-          TextFormField(
+          _buildTextField(
             controller: _emailController,
+            label: "Adresse Email",
+            icon: CupertinoIcons.mail,
+            colorScheme: colorScheme,
+            isDark: isDark,
             keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(
-              labelText: "Email",
-              prefixIcon: const Icon(CupertinoIcons.mail_solid),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              filled: true,
-              fillColor: colorScheme.surface,
-            ),
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "Veuillez entrer votre email";
-              }
-              if (!value.contains('@')) {
-                return "Veuillez entrer un email valide";
-              }
+              if (value == null || value.isEmpty) return "Entrez votre email";
+              if (!value.contains('@')) return "Email invalide";
               return null;
             },
           ),
-          const SizedBox(height: 16),
-          TextFormField(
+          const SizedBox(height: 20),
+          _buildTextField(
             controller: _passwordController,
-            obscureText: _isObscure,
-            decoration: InputDecoration(
-              labelText: "Mot de passe",
-              prefixIcon: const Icon(CupertinoIcons.lock_fill),
-              suffixIcon: IconButton(
-                icon: Icon(_isObscure
-                    ? CupertinoIcons.eye_slash_fill
-                    : CupertinoIcons.eye_fill),
-                onPressed: () {
-                  setState(() {
-                    _isObscure = !_isObscure;
-                  });
-                },
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              filled: true,
-              fillColor: colorScheme.surface,
-            ),
+            label: "Mot de passe",
+            icon: CupertinoIcons.lock,
+            colorScheme: colorScheme,
+            isDark: isDark,
+            isPassword: true,
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "Veuillez entrer votre mot de passe";
-              }
-              if (_isSignup && value.length < 6) {
-                return "Le mot de passe doit avoir au moins 6 caractères";
-              }
+              if (value == null || value.isEmpty) return "Entrez votre mot de passe";
+              if (_isSignup && value.length < 6) return "Minimum 6 caractères";
               return null;
             },
           ),
@@ -268,42 +249,71 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage>
     );
   }
 
-  Widget _buildSubmitButton(
-      AuthProvider authProvider, ColorScheme colorScheme, TextTheme textTheme) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: colorScheme.primary,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required ColorScheme colorScheme,
+    required bool isDark,
+    bool isPassword = false,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isPassword && _isObscure,
+      keyboardType: keyboardType,
+      validator: validator,
+      style: GoogleFonts.poppins(fontSize: 15),
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, size: 20),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  _isObscure ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
+                  size: 20,
+                ),
+                onPressed: () => setState(() => _isObscure = !_isObscure),
+              )
+            : null,
       ),
-      onPressed: authProvider.isLoading
-          ? null
-          : () {
-              if (_isSignup) {
-                _handleSignup(authProvider);
-              } else {
-                _handleLogin(authProvider);
-              }
-            },
-      child: authProvider.isLoading
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation(Colors.white),
+    );
+  }
+
+  Widget _buildSubmitButton(AuthProvider authProvider, ColorScheme colorScheme) {
+    return Container(
+      width: double.infinity,
+      height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.primary.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: authProvider.isLoading
+            ? null
+            : () => _isSignup ? _handleSignup(authProvider) : _handleLogin(authProvider),
+        child: authProvider.isLoading
+            ? const SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
+              )
+            : Text(
+                _isSignup ? "Créer mon compte" : "Se connecter",
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
               ),
-            )
-          : Text(
-              _isSignup ? "S'inscrire" : "Se connecter",
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
+      ),
     );
   }
 
