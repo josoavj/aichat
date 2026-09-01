@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../models/chat_message.dart';
 import '../services/api_service.dart';
 
@@ -28,11 +30,13 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
   bool _isLoading = false;
   bool _isInitializing = true;
   String? _errorMessage;
+  bool _showScrollButton = false;
 
   @override
   void initState() {
     super.initState();
     _initializeApi();
+    _scrollController.addListener(_handleScroll);
   }
 
   /// Initialise le service API
@@ -50,8 +54,21 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
     }
   }
 
+  void _handleScroll() {
+    if (_scrollController.hasClients) {
+      final isNearBottom = _scrollController.position.pixels >
+          _scrollController.position.maxScrollExtent - 200;
+      if (isNearBottom && _showScrollButton) {
+        setState(() => _showScrollButton = false);
+      } else if (!isNearBottom && !_showScrollButton) {
+        setState(() => _showScrollButton = true);
+      }
+    }
+  }
+
   @override
   void dispose() {
+    _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
     _textController.dispose();
     _textFieldFocus.dispose();
@@ -95,8 +112,8 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.outPowerful,
         );
       }
     });
@@ -107,6 +124,7 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Effacer l\'historique',
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
@@ -118,7 +136,7 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text('Annuler', style: GoogleFonts.poppins(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () {
@@ -126,7 +144,9 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
               _apiService.resetConversation();
               Navigator.pop(context);
             },
-            child: const Text('Effacer'),
+            child: Text('Effacer',
+                style: GoogleFonts.poppins(
+                    color: Colors.red, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -136,17 +156,22 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     if (_isInitializing) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: theme.primaryColor),
+            CircularProgressIndicator(
+              color: theme.primaryColor,
+              strokeWidth: 3,
+            ),
             const SizedBox(height: 16),
             Text(
-              'Initialisation du chat...',
-              style: GoogleFonts.poppins(),
+              'Initialisation de l\'IA...',
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500, letterSpacing: 0.5),
             ),
           ],
         ),
@@ -155,73 +180,113 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
 
     if (_errorMessage != null) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, color: theme.colorScheme.error, size: 48),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.error.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.bolt, color: theme.colorScheme.error, size: 48),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Oups ! Une erreur est survenue',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.error,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
                 _errorMessage!,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(color: theme.colorScheme.error),
+                style: GoogleFonts.poppins(color: Colors.grey[600]),
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: widget.onApiKeyInvalid,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Réessayer'),
-            ),
-          ],
+              const SizedBox(height: 32),
+              ElevatedButton.icon(
+                onPressed: widget.onApiKeyInvalid,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: const Icon(Icons.key),
+                label: const Text('Modifier la clé API'),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    return Column(
+    return Stack(
       children: [
-        // Barre d'info
-        if (_messages.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${_messages.length} messages',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+        Column(
+          children: [
+            // Barre d'info (optionnelle, déplacée dans le Drawer ou AppBar idéalement)
+            if (_messages.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton.icon(
+                      onPressed: _clearHistory,
+                      icon: const Icon(Icons.delete_sweep_outlined, size: 18),
+                      label: Text(
+                        'Effacer',
+                        style: GoogleFonts.poppins(fontSize: 12),
+                      ),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.grey,
+                      ),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 20),
-                  onPressed: _clearHistory,
-                  tooltip: 'Effacer l\'historique',
-                ),
-              ],
+              ),
+            // Liste des messages
+            Expanded(
+              child: _messages.isEmpty
+                  ? _buildEmptyState(theme)
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 100),
+                      itemCount: _messages.length + (_isLoading ? 1 : 0),
+                      itemBuilder: (context, idx) {
+                        if (idx == _messages.length) {
+                          return const TypingIndicator();
+                        }
+                        final message = _messages[idx];
+                        return MessageBubble(message: message);
+                      },
+                    ),
+            ),
+          ],
+        ),
+        // Bouton Scroll to Bottom
+        if (_showScrollButton)
+          Positioned(
+            bottom: 110,
+            right: 16,
+            child: FloatingActionButton.small(
+              onPressed: _scrollToBottom,
+              backgroundColor: theme.primaryColor,
+              child: const Icon(Icons.arrow_downward, color: Colors.white),
             ),
           ),
-        // Liste des messages
-        Expanded(
-          child: _messages.isEmpty
-              ? _buildEmptyState(theme)
-              : ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 16,
-                  ),
-                  itemCount: _messages.length,
-                  itemBuilder: (context, idx) {
-                    final message = _messages[idx];
-                    return MessageBubble(message: message);
-                  },
-                ),
+        // Zone de saisie flottante
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: _buildInputArea(theme),
         ),
-        // Zone de saisie
-        _buildInputArea(theme),
       ],
     );
   }
@@ -229,32 +294,69 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
   /// Widget pour afficher quand il n'y a pas de messages
   Widget _buildEmptyState(ThemeData theme) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.chat_bubble_outline,
-            size: 64,
-            color: theme.primaryColor.withOpacity(0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Aucun message pour le moment',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              color: Colors.grey[600],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: theme.primaryColor.withOpacity(0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.auto_awesome,
+                size: 80,
+                color: theme.primaryColor.withOpacity(0.6),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Commencez une conversation!',
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.grey[500],
+            const SizedBox(height: 24),
+            Text(
+              'Prêt à vous aider !',
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 48),
+              child: Text(
+                'Posez-moi n\'importe quelle question pour commencer notre conversation.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
+            _buildQuickActions(theme),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildQuickActions(ThemeData theme) {
+    final actions = [
+      'Explique-moi le code Quantum',
+      'Écris un poème sur la mer',
+      'Idées de repas sains',
+    ];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      alignment: WrapAlignment.center,
+      children: actions
+          .map((action) => ActionChip(
+                label: Text(action),
+                labelStyle: GoogleFonts.poppins(fontSize: 12),
+                backgroundColor: theme.primaryColor.withOpacity(0.05),
+                onPressed: () => _sendMessage(action),
+              ))
+          .toList(),
     );
   }
 
@@ -262,88 +364,92 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
   Widget _buildInputArea(ThemeData theme) {
     final isDark = theme.brightness == Brightness.dark;
 
-    return SafeArea(
-      top: false,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        color: isDark ? Colors.grey[850] : Colors.white,
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _textController,
-                focusNode: _textFieldFocus,
-                enabled: !_isLoading,
-                maxLines: 5,
-                minLines: 1,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
-                  hintText: _isLoading
-                      ? 'Veuillez attendre...'
-                      : 'Tapez votre message...',
-                  hintStyle: GoogleFonts.poppins(
-                    color: isDark ? Colors.grey[500] : Colors.grey[600],
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: isDark ? Colors.grey[700] : Colors.grey[100],
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(
-                      color: theme.primaryColor,
-                      width: 2,
-                    ),
-                  ),
-                ),
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
-                onSubmitted: _isLoading ? null : _sendMessage,
-              ),
-            ),
-            const SizedBox(width: 12),
-            _isLoading
-                ? Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: CircularProgressIndicator(
-                        color: theme.primaryColor,
-                        strokeWidth: 2,
-                      ),
-                    ),
-                  )
-                : Container(
-                    decoration: BoxDecoration(
-                      color: theme.primaryColor,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.primaryColor.withOpacity(0.4),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      onPressed: () => _sendMessage(_textController.text),
-                      icon: const Icon(
-                        Icons.send_rounded,
-                        color: Colors.white,
-                      ),
-                      tooltip: 'Envoyer',
-                    ),
-                  ),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            theme.scaffoldBackgroundColor.withOpacity(0),
+            theme.scaffoldBackgroundColor.withOpacity(0.9),
+            theme.scaffoldBackgroundColor,
           ],
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.grey[850]!.withOpacity(0.8)
+                  : Colors.white.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                color: isDark ? Colors.white10 : Colors.black12,
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _textController,
+                    focusNode: _textFieldFocus,
+                    enabled: !_isLoading,
+                    maxLines: 5,
+                    minLines: 1,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: InputDecoration(
+                      hintText: 'Écrivez votre message...',
+                      hintStyle: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                    ),
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                    onSubmitted: _isLoading ? null : _sendMessage,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                _isLoading
+                    ? const SizedBox(
+                        width: 44,
+                        height: 44,
+                        child: Padding(
+                          padding: EdgeInsets.all(12),
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : IconButton(
+                        onPressed: () => _sendMessage(_textController.text),
+                        icon: Icon(
+                          Icons.send_rounded,
+                          color: theme.primaryColor,
+                        ),
+                        tooltip: 'Envoyer',
+                      ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -360,118 +466,192 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-
     final isError = message.error != null;
-    final bubbleColor = message.isFromUser
-        ? theme.primaryColor
-        : isError
-            ? theme.colorScheme.error.withOpacity(0.2)
-            : isDark
-                ? Colors.grey[700]
-                : Colors.grey[200];
-
-    final textColor = message.isFromUser
-        ? Colors.white
-        : isError
-            ? theme.colorScheme.error
-            : isDark
-                ? Colors.white70
-                : Colors.black87;
 
     final alignment =
         message.isFromUser ? CrossAxisAlignment.end : CrossAxisAlignment.start;
 
-    final borderRadius = BorderRadius.only(
-      topLeft: const Radius.circular(20),
-      topRight: const Radius.circular(20),
-      bottomLeft: message.isFromUser
-          ? const Radius.circular(20)
-          : const Radius.circular(4),
-      bottomRight: message.isFromUser
-          ? const Radius.circular(4)
-          : const Radius.circular(20),
-    );
-
-    return Column(
-      crossAxisAlignment: alignment,
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: bubbleColor,
-            borderRadius: borderRadius,
-            border: isError
-                ? Border.all(color: theme.colorScheme.error, width: 1)
-                : null,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.06),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.75,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        crossAxisAlignment: alignment,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: message.isFromUser
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              if (isError)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 16,
-                        color: theme.colorScheme.error,
+              if (!message.isFromUser) _buildAvatar(theme),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    gradient: message.isFromUser
+                        ? LinearGradient(
+                            colors: [theme.primaryColor, theme.primaryColor.withOpacity(0.8)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                    color: !message.isFromUser
+                        ? (isError
+                            ? theme.colorScheme.error.withOpacity(0.1)
+                            : isDark
+                                ? Colors.grey[800]
+                                : Colors.grey[100])
+                        : null,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(20),
+                      topRight: const Radius.circular(20),
+                      bottomLeft: Radius.circular(message.isFromUser ? 20 : 4),
+                      bottomRight: Radius.circular(message.isFromUser ? 4 : 20),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
                       ),
-                      const SizedBox(width: 4),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isError)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.warning_amber_rounded,
+                                  size: 14, color: theme.colorScheme.error),
+                              const SizedBox(width: 4),
+                              Text('Erreur',
+                                  style: GoogleFonts.poppins(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.error)),
+                            ],
+                          ),
+                        ),
+                      MarkdownBody(
+                        data: message.text,
+                        selectable: true,
+                        styleSheet: MarkdownStyleSheet(
+                          p: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: message.isFromUser
+                                ? Colors.white
+                                : isError
+                                    ? theme.colorScheme.error
+                                    : (isDark ? Colors.white70 : Colors.black87),
+                            height: 1.5,
+                          ),
+                          code: GoogleFonts.firaCode(
+                            backgroundColor: isDark ? Colors.black26 : Colors.black12,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
                       Text(
-                        'Erreur',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.error,
+                        _formatTime(message.timestamp),
+                        style: TextStyle(
+                          fontSize: 9,
+                          color: (message.isFromUser ? Colors.white : Colors.grey)
+                              .withOpacity(0.6),
                         ),
                       ),
                     ],
                   ),
                 ),
-              Text(
-                message.text,
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: textColor,
-                  height: 1.4,
-                ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                _formatTime(message.timestamp),
-                style: GoogleFonts.poppins(
-                  fontSize: 11,
-                  color: textColor.withOpacity(0.6),
-                ),
-              ),
+              const SizedBox(width: 8),
+              if (message.isFromUser) _buildAvatar(theme, isUser: true),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  /// Formate l'heure du message
+  Widget _buildAvatar(ThemeData theme, {bool isUser = false}) {
+    return Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        color: isUser ? theme.primaryColor.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        isUser ? Icons.person_outline : Icons.smart_toy_outlined,
+        size: 16,
+        color: isUser ? theme.primaryColor : Colors.grey[600],
+      ),
+    );
+  }
+
   String _formatTime(DateTime time) {
-    final now = DateTime.now();
-    if (time.year == now.year &&
-        time.month == now.month &&
-        time.day == now.day) {
-      return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-    }
-    return '${time.day}/${time.month} ${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+}
+
+/// Indicateur de saisie (typing)
+class TypingIndicator extends StatelessWidget {
+  const TypingIndicator({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.grey[800] : Colors.grey[100],
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                _buildDot(theme, 0),
+                const SizedBox(width: 4),
+                _buildDot(theme, 1),
+                const SizedBox(width: 4),
+                _buildDot(theme, 2),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDot(ThemeData theme, int index) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: Duration(milliseconds: 300 + (index * 150)),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: 0.3 + (0.7 * value),
+          child: Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: theme.primaryColor.withOpacity(0.6),
+              shape: BoxShape.circle,
+            ),
+          ),
+        );
+      },
+    );
   }
 }

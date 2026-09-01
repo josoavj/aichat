@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:ai_test/services/logger_service.dart';
 
@@ -5,7 +6,9 @@ import 'package:ai_test/services/logger_service.dart';
 class ApiManager {
   static const String _apiKeyStorageKey = 'gemini_api_key';
   static const int _minApiKeyLength = 20;
-  static const _secureStorage = FlutterSecureStorage();
+
+  @visibleForTesting
+  static FlutterSecureStorage storage = const FlutterSecureStorage();
 
   /// Sauvegarde la clé API de manière sécurisée
   static Future<void> saveApiKey(String apiKey) async {
@@ -19,7 +22,7 @@ class ApiManager {
     }
 
     try {
-      await _secureStorage.write(
+      await storage.write(
         key: _apiKeyStorageKey,
         value: trimmedKey,
       );
@@ -35,7 +38,7 @@ class ApiManager {
   /// Récupère la clé API stockée de manière sécurisée
   static Future<String?> getApiKey() async {
     try {
-      final apiKey = await _secureStorage.read(
+      final apiKey = await storage.read(
         key: _apiKeyStorageKey,
       );
       if (apiKey != null) {
@@ -53,7 +56,7 @@ class ApiManager {
   /// Supprime la clé API stockée de manière sécurisée
   static Future<void> deleteApiKey() async {
     try {
-      await _secureStorage.delete(
+      await storage.delete(
         key: _apiKeyStorageKey,
       );
       AppLogger.info('Clé API supprimée avec succès');

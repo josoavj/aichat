@@ -66,78 +66,119 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
-    final avatarDiameter = screenWidth * 0.4;
+    final avatarDiameter = screenWidth * 0.45;
 
     return Scaffold(
       body: Container(
-        // ... (votre décoration de gradient) ...
-        decoration: const BoxDecoration(
+        width: double.infinity,
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color.fromARGB(255, 7, 116, 206),
-              Color.fromARGB(255, 1, 60, 107),
+              theme.primaryColor,
+              theme.primaryColor.withOpacity(0.8),
+              theme.primaryColor.withAlpha(200),
             ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: SizedBox(
-                    width: avatarDiameter, // Utiliser la taille dynamique
-                    height: avatarDiameter, // Utiliser la taille dynamique
-                    child: CircleAvatar(
-                      radius: avatarDiameter /
-                          2, // Le rayon est la moitié du diamètre
-                      foregroundImage: const AssetImage(
-                        "assets/images/todoroki.png",
+        child: Stack(
+          children: [
+            // Cercles décoratifs en arrière-plan
+            Positioned(
+              top: -50,
+              right: -50,
+              child: CircleAvatar(
+                radius: 100,
+                backgroundColor: Colors.white.withOpacity(0.1),
+              ),
+            ),
+            Positioned(
+              bottom: -80,
+              left: -80,
+              child: CircleAvatar(
+                radius: 150,
+                backgroundColor: Colors.white.withOpacity(0.05),
+              ),
+            ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: ScaleTransition(
+                      scale: _scaleAnimation,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white.withOpacity(0.2), width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: CircleAvatar(
+                          radius: avatarDiameter / 2,
+                          backgroundImage: const AssetImage("assets/images/todoroki.png"),
+                          backgroundColor: Colors.white24,
+                        ),
                       ),
-                      backgroundColor: Colors.transparent,
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              // ... (le reste de vos widgets Text) ...
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Text(
-                  'Welcome to',
-                  style: GoogleFonts.poppins(
-                    fontSize: 20,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 40),
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Column(
+                      children: [
+                        Text(
+                          'Welcome to',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            color: Colors.white.withOpacity(0.8),
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'MyAI Assistant',
+                          style: GoogleFonts.poppins(
+                            fontSize: 32,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                            shadows: [
+                              Shadow(
+                                blurRadius: 15.0,
+                                color: Colors.black.withOpacity(0.3),
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 8),
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Text(
-                  'MyAI',
-                  style: GoogleFonts.poppins(
-                    fontSize: 28,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 10.0,
-                        color: Colors.black.withAlpha((255 * 0.5).round()),
-                        offset: const Offset(3.0, 3.0),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

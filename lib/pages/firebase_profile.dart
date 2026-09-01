@@ -33,22 +33,16 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(CupertinoIcons.back),
-        ),
-        title: Text(
-          "Mon compte",
-          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w700),
-        ),
-        centerTitle: true,
+        title: const Text("Mon Profil"),
         actions: [
           Consumer<AuthProvider>(
             builder: (context, authProvider, child) {
               return IconButton(
-                icon: const Icon(Icons.logout_rounded),
+                icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
                 onPressed: () => _showLogoutDialog(context, authProvider),
               );
             },
@@ -62,17 +56,17 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(CupertinoIcons.person_fill, size: 64),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Pas connecté',
-                    style: GoogleFonts.poppins(fontSize: 18),
-                  ),
+                  Icon(CupertinoIcons.person_crop_circle_badge_exclam, 
+                    size: 80, color: theme.primaryColor.withOpacity(0.5)),
                   const SizedBox(height: 24),
+                  Text(
+                    'Session expirée',
+                    style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 32),
                   ElevatedButton(
-                    onPressed: () =>
-                        Navigator.of(context).pushReplacementNamed('/login'),
-                    child: const Text('Se connecter'),
+                    onPressed: () => Navigator.of(context).pushReplacementNamed('/login'),
+                    child: const Text('Se reconnecter'),
                   ),
                 ],
               ),
@@ -85,19 +79,14 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                // Photo de profil et info utilisateur
-                _buildProfileHeader(user, context),
-                const SizedBox(height: 32),
-
-                // Section Informations
-                _buildInfoSection(user),
-                const SizedBox(height: 32),
-
-                // Section Actions
-                _buildActionsSection(context, authProvider),
+                _buildProfileHeader(user, theme),
+                const SizedBox(height: 40),
+                _buildInfoCard(user, theme),
+                const SizedBox(height: 24),
+                _buildActionsSection(context, authProvider, theme),
               ],
             ),
           );
@@ -106,77 +95,183 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
     );
   }
 
-  Widget _buildProfileHeader(dynamic user, BuildContext context) {
-    return Stack(
-      alignment: Alignment.topCenter,
+  Widget _buildProfileHeader(dynamic user, ThemeData theme) {
+    return Column(
       children: [
-        Column(
+        Stack(
+          alignment: Alignment.bottomRight,
           children: [
-            Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.grey[300],
-                  backgroundImage: _profileImageFile != null
-                      ? FileImage(_profileImageFile!)
-                      : (user?.photoURL != null && user!.photoURL!.isNotEmpty)
-                          ? NetworkImage(user.photoURL!)
-                          : null,
-                  child: (_profileImageFile == null &&
-                          (user?.photoURL == null || user!.photoURL!.isEmpty))
-                      ? Icon(
-                          CupertinoIcons.person_circle_fill,
-                          size: 100,
-                          color: Theme.of(context).colorScheme.primary,
-                        )
-                      : null,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(CupertinoIcons.camera_fill,
-                        color: Colors.white, size: 16),
-                    onPressed: () => _showImagePickerOptions(),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (!_isEditing)
-              Text(
-                user?.displayName ?? 'Utilisateur',
-                style: GoogleFonts.poppins(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                ),
-              )
-            else
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: "Nom complet",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
-                  fillColor: Theme.of(context).colorScheme.surface,
-                ),
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: theme.primaryColor.withOpacity(0.2), width: 2),
               ),
-            const SizedBox(height: 8),
-            Text(
-              user?.email ?? 'email@exemple.com',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.grey[600],
+              child: CircleAvatar(
+                radius: 60,
+                backgroundColor: theme.primaryColor.withOpacity(0.1),
+                backgroundImage: _profileImageFile != null
+                    ? FileImage(_profileImageFile!)
+                    : (user?.photoURL != null && user!.photoURL!.isNotEmpty)
+                        ? NetworkImage(user.photoURL!)
+                        : null,
+                child: (_profileImageFile == null &&
+                        (user?.photoURL == null || user!.photoURL!.isEmpty))
+                    ? Icon(CupertinoIcons.person_fill, size: 60, color: theme.primaryColor)
+                    : null,
+              ),
+            ),
+            GestureDetector(
+              onTap: _showImagePickerOptions,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: theme.primaryColor,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8)
+                  ],
+                ),
+                child: const Icon(CupertinoIcons.camera_fill, color: Colors.white, size: 20),
               ),
             ),
           ],
         ),
+        const SizedBox(height: 24),
+        if (!_isEditing)
+          Text(
+            user?.displayName ?? 'Utilisateur',
+            style: GoogleFonts.poppins(fontSize: 26, fontWeight: FontWeight.bold),
+          )
+        else
+          TextField(
+            controller: _nameController,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600),
+            decoration: InputDecoration(
+              hintText: "Votre nom",
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              border: UnderlineInputBorder(borderSide: BorderSide(color: theme.primaryColor)),
+            ),
+          ),
+        Text(
+          user?.email ?? '',
+          style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
+        ),
       ],
+    );
+  }
+
+  Widget _buildInfoCard(dynamic user, ThemeData theme) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            _buildInfoRow(CupertinoIcons.mail, "Email", user?.email ?? 'N/A', theme),
+            const Divider(height: 32),
+            _buildInfoRow(CupertinoIcons.checkmark_shield, "Statut", 
+              user?.emailVerified == true ? 'Vérifié' : 'Non vérifié', theme),
+            const Divider(height: 32),
+            _buildInfoRow(CupertinoIcons.calendar, "Membre depuis", 
+              _formatDate(user?.metadata?.creationTime), theme),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value, ThemeData theme) {
+    return Row(
+      children: [
+        Icon(icon, size: 22, color: theme.primaryColor),
+        const SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey)),
+            Text(value, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'N/A';
+    return "${date.day}/${date.month}/${date.year}";
+  }
+
+  Widget _buildActionsSection(BuildContext context, AuthProvider authProvider, ThemeData theme) {
+    return Column(
+      children: [
+        if (!_isEditing)
+          _buildActionButton(
+            label: "Modifier le profil",
+            icon: Icons.edit_outlined,
+            onPressed: () => setState(() => _isEditing = true),
+            theme: theme,
+          )
+        else
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionButton(
+                  label: "Sauver",
+                  icon: Icons.check,
+                  onPressed: () async {
+                    await authProvider.updateProfile(displayName: _nameController.text);
+                    setState(() => _isEditing = false);
+                  },
+                  theme: theme,
+                  isPrimary: true,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionButton(
+                  label: "Annuler",
+                  icon: Icons.close,
+                  onPressed: () => setState(() => _isEditing = false),
+                  theme: theme,
+                ),
+              ),
+            ],
+          ),
+        const SizedBox(height: 12),
+        _buildActionButton(
+          label: "Supprimer mon compte",
+          icon: CupertinoIcons.trash,
+          onPressed: () => _showDeleteAccountDialog(context, authProvider),
+          theme: theme,
+          isDanger: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButton({
+    required String label,
+    required IconData icon,
+    required VoidCallback onPressed,
+    required ThemeData theme,
+    bool isPrimary = false,
+    bool isDanger = false,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        icon: Icon(icon, size: 20, color: isDanger ? Colors.redAccent : (isPrimary ? Colors.white : theme.primaryColor)),
+        label: Text(label),
+        style: OutlinedButton.styleFrom(
+          backgroundColor: isPrimary ? theme.primaryColor : (isDanger ? Colors.redAccent.withOpacity(0.05) : null),
+          foregroundColor: isDanger ? Colors.redAccent : (isPrimary ? Colors.white : theme.primaryColor),
+          side: BorderSide(color: isDanger ? Colors.redAccent : theme.primaryColor),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+        onPressed: onPressed,
+      ),
     );
   }
 

@@ -150,26 +150,40 @@ class AppThemes {
   }
 
   static ThemeData lightTheme(MaterialColor primarySwatch) {
+    final colorScheme = ColorScheme.fromSwatch(
+      primarySwatch: primarySwatch,
+      brightness: Brightness.light,
+      accentColor: primarySwatch[400],
+    ).copyWith(
+      surface: Colors.white,
+      background: const Color(0xFFF8F9FA),
+    );
+
     return ThemeData(
+      useMaterial3: true,
       brightness: Brightness.light,
       primarySwatch: primarySwatch,
-      colorScheme: ColorScheme.fromSwatch(
-        primarySwatch: primarySwatch,
-        brightness: Brightness.light,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: colorScheme.background,
+      cardTheme: CardTheme(
+        color: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: Colors.grey[200]!),
+        ),
       ),
-      scaffoldBackgroundColor: Colors.white,
       appBarTheme: AppBarTheme(
-        backgroundColor: primarySwatch,
-        foregroundColor: Colors.white,
-        elevation: 4.0,
+        backgroundColor: colorScheme.background,
+        foregroundColor: Colors.black87,
+        elevation: 0,
+        centerTitle: true,
         titleTextStyle: GoogleFonts.poppins(
-          fontSize: 20,
+          fontSize: 18,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
+          color: Colors.black87,
         ),
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
       textTheme: GoogleFonts.poppinsTextTheme(
         ThemeData.light().textTheme.apply(
@@ -181,53 +195,69 @@ class AppThemes {
         style: ElevatedButton.styleFrom(
           backgroundColor: primarySwatch,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: primarySwatch[200]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: primarySwatch, width: 2.0),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey[300]!),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: primarySwatch[300]!),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey[200]!),
         ),
-        hintStyle: GoogleFonts.poppins(color: Colors.grey[500]),
-        labelStyle: GoogleFonts.poppins(color: Colors.black87),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: primarySwatch, width: 2),
+        ),
+        hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14),
+        labelStyle: GoogleFonts.poppins(color: Colors.black87, fontSize: 14),
       ),
     );
   }
 
   static ThemeData darkTheme(MaterialColor primarySwatch) {
+    final colorScheme = ColorScheme.fromSwatch(
+      primarySwatch: primarySwatch,
+      brightness: Brightness.dark,
+      accentColor: primarySwatch[200],
+    ).copyWith(
+      surface: const Color(0xFF1E1E1E),
+      background: const Color(0xFF121212),
+    );
+
     return ThemeData(
+      useMaterial3: true,
       brightness: Brightness.dark,
       primarySwatch: primarySwatch,
-      colorScheme: ColorScheme.fromSwatch(
-        primarySwatch: primarySwatch,
-        brightness: Brightness.dark,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: colorScheme.background,
+      cardTheme: CardTheme(
+        color: colorScheme.surface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: Colors.white10),
+        ),
       ),
-      scaffoldBackgroundColor: Colors.grey[900],
       appBarTheme: AppBarTheme(
-        backgroundColor: primarySwatch[700],
+        backgroundColor: colorScheme.background,
         foregroundColor: Colors.white,
-        elevation: 4.0,
+        elevation: 0,
+        centerTitle: true,
         titleTextStyle: GoogleFonts.poppins(
-          fontSize: 20,
+          fontSize: 18,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       textTheme: GoogleFonts.poppinsTextTheme(
         ThemeData.dark().textTheme.apply(
@@ -239,23 +269,30 @@ class AppThemes {
         style: ElevatedButton.styleFrom(
           backgroundColor: primarySwatch,
           foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.05),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: primarySwatch[700]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: primarySwatch[300]!, width: 2.0),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Colors.white10),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: primarySwatch[600]!),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Colors.white10),
         ),
-        hintStyle: GoogleFonts.poppins(color: Colors.grey[500]),
-        labelStyle: GoogleFonts.poppins(color: Colors.white70),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: primarySwatch, width: 2),
+        ),
+        hintStyle: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 14),
+        labelStyle: GoogleFonts.poppins(color: Colors.white70, fontSize: 14),
       ),
     );
   }
