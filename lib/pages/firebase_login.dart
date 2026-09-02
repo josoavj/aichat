@@ -106,6 +106,7 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage>
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -161,9 +162,9 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage>
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: colorScheme.primary.withOpacity(0.1),
+            color: colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+            border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
           ),
           child: Icon(
             _isSignup ? CupertinoIcons.person_add_solid : CupertinoIcons.lock_shield_fill,
@@ -289,7 +290,7 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withOpacity(0.3),
+            color: colorScheme.primary.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -306,7 +307,7 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage>
                 child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
               )
             : Text(
-                _isSignup ? "Créer mon compte" : "Se connecter",
+                _isSignup ? 'Créer mon compte' : 'Se connecter',
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
