@@ -141,12 +141,14 @@ class AppThemes {
   static MaterialColor createMaterialColor(Color color) {
     List strengths = <double>[.05, .1, .2, .3, .4, .5, .6, .7, .8, .9];
     Map<int, Color> swatch = {};
-    final int r = color.red, g = color.green, b = color.blue;
+    final int r = (color.r * 255).round();
+    final int g = (color.g * 255).round();
+    final int b = (color.b * 255).round();
     for (int i = 0; i < 10; i++) {
       swatch[(strengths[i] * 1000).round()] =
           Color.fromRGBO(r, g, b, strengths[i]);
     }
-    return MaterialColor(color.value, swatch);
+    return MaterialColor(color.toARGB32(), swatch);
   }
 
   static ThemeData lightTheme(MaterialColor primarySwatch) {
@@ -156,7 +158,6 @@ class AppThemes {
       accentColor: primarySwatch[400],
     ).copyWith(
       surface: Colors.white,
-      background: const Color(0xFFF8F9FA),
     );
 
     return ThemeData(
@@ -164,8 +165,8 @@ class AppThemes {
       brightness: Brightness.light,
       primarySwatch: primarySwatch,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.background,
-      cardTheme: CardTheme(
+      scaffoldBackgroundColor: colorScheme.surface,
+      cardTheme: CardThemeData(
         color: Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -174,7 +175,7 @@ class AppThemes {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.background,
+        backgroundColor: colorScheme.surface,
         foregroundColor: Colors.black87,
         elevation: 0,
         centerTitle: true,
@@ -230,7 +231,6 @@ class AppThemes {
       accentColor: primarySwatch[200],
     ).copyWith(
       surface: const Color(0xFF1E1E1E),
-      background: const Color(0xFF121212),
     );
 
     return ThemeData(
@@ -238,8 +238,8 @@ class AppThemes {
       brightness: Brightness.dark,
       primarySwatch: primarySwatch,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.background,
-      cardTheme: CardTheme(
+      scaffoldBackgroundColor: const Color(0xFF121212),
+      cardTheme: CardThemeData(
         color: colorScheme.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -248,7 +248,7 @@ class AppThemes {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.background,
+        backgroundColor: const Color(0xFF121212),
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -277,7 +277,7 @@ class AppThemes {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
+        fillColor: Colors.white.withValues(alpha: 0.05),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),

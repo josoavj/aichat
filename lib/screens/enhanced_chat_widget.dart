@@ -44,12 +44,14 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
     try {
       _apiService = ApiService();
       _apiService.initialize(widget.apiKey);
-      setState(() => _isInitializing = false);
+      if (mounted) setState(() => _isInitializing = false);
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Erreur d\'initialisation: $e';
-        _isInitializing = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Erreur d\'initialisation: $e';
+          _isInitializing = false;
+        });
+      }
       widget.onApiKeyInvalid?.call();
     }
   }
@@ -92,17 +94,23 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
 
     try {
       final response = await _apiService.sendMessage(text);
-      setState(() {
-        _messages.add(ChatMessage(text: response, isFromUser: false));
-      });
+      if (mounted) {
+        setState(() {
+          _messages.add(ChatMessage(text: response, isFromUser: false));
+        });
+      }
     } on ApiServiceException catch (e) {
-      setState(() {
-        _messages.add(ChatMessage.error(e.message));
-        _errorMessage = e.message;
-      });
+      if (mounted) {
+        setState(() {
+          _messages.add(ChatMessage.error(e.message));
+          _errorMessage = e.message;
+        });
+      }
     } finally {
-      setState(() => _isLoading = false);
-      _scrollToBottom();
+      if (mounted) {
+        setState(() => _isLoading = false);
+        _scrollToBottom();
+      }
     }
   }
 
@@ -113,7 +121,7 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 500),
-          curve: Curves.outPowerful,
+          curve: Curves.easeOutExpo,
         );
       }
     });
@@ -156,7 +164,6 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     if (_isInitializing) {
       return Center(
@@ -188,7 +195,7 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.error.withOpacity(0.1),
+                  color: theme.colorScheme.error.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.bolt, color: theme.colorScheme.error, size: 48),
@@ -229,7 +236,6 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
       children: [
         Column(
           children: [
-            // Barre d'info (optionnelle, déplacée dans le Drawer ou AppBar idéalement)
             if (_messages.isNotEmpty)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -250,7 +256,6 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
                   ],
                 ),
               ),
-            // Liste des messages
             Expanded(
               child: _messages.isEmpty
                   ? _buildEmptyState(theme)
@@ -269,7 +274,6 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
             ),
           ],
         ),
-        // Bouton Scroll to Bottom
         if (_showScrollButton)
           Positioned(
             bottom: 110,
@@ -280,7 +284,6 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
               child: const Icon(Icons.arrow_downward, color: Colors.white),
             ),
           ),
-        // Zone de saisie flottante
         Positioned(
           left: 0,
           right: 0,
@@ -291,7 +294,6 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
     );
   }
 
-  /// Widget pour afficher quand il n'y a pas de messages
   Widget _buildEmptyState(ThemeData theme) {
     return Center(
       child: SingleChildScrollView(
@@ -301,13 +303,13 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
             Container(
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: theme.primaryColor.withOpacity(0.05),
+                color: theme.primaryColor.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.auto_awesome,
                 size: 80,
-                color: theme.primaryColor.withOpacity(0.6),
+                color: theme.primaryColor.withValues(alpha: 0.6),
               ),
             ),
             const SizedBox(height: 24),
@@ -353,14 +355,13 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
           .map((action) => ActionChip(
                 label: Text(action),
                 labelStyle: GoogleFonts.poppins(fontSize: 12),
-                backgroundColor: theme.primaryColor.withOpacity(0.05),
+                backgroundColor: theme.primaryColor.withValues(alpha: 0.05),
                 onPressed: () => _sendMessage(action),
               ))
           .toList(),
     );
   }
 
-  /// Construit la zone de saisie
   Widget _buildInputArea(ThemeData theme) {
     final isDark = theme.brightness == Brightness.dark;
 
@@ -371,8 +372,8 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            theme.scaffoldBackgroundColor.withOpacity(0),
-            theme.scaffoldBackgroundColor.withOpacity(0.9),
+            theme.scaffoldBackgroundColor.withValues(alpha: 0),
+            theme.scaffoldBackgroundColor.withValues(alpha: 0.9),
             theme.scaffoldBackgroundColor,
           ],
         ),
@@ -385,8 +386,8 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: isDark
-                  ? Colors.grey[850]!.withOpacity(0.8)
-                  : Colors.white.withOpacity(0.8),
+                  ? Colors.grey[850]!.withValues(alpha: 0.8)
+                  : Colors.white.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(28),
               border: Border.all(
                 color: isDark ? Colors.white10 : Colors.black12,
@@ -394,7 +395,7 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 4),
                 ),
@@ -456,7 +457,6 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
   }
 }
 
-/// Composant pour afficher un message
 class MessageBubble extends StatelessWidget {
   final ChatMessage message;
 
@@ -491,14 +491,14 @@ class MessageBubble extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: message.isFromUser
                         ? LinearGradient(
-                            colors: [theme.primaryColor, theme.primaryColor.withOpacity(0.8)],
+                            colors: [theme.primaryColor, theme.primaryColor.withValues(alpha: 0.8)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           )
                         : null,
                     color: !message.isFromUser
                         ? (isError
-                            ? theme.colorScheme.error.withOpacity(0.1)
+                            ? theme.colorScheme.error.withValues(alpha: 0.1)
                             : isDark
                                 ? Colors.grey[800]
                                 : Colors.grey[100])
@@ -511,7 +511,7 @@ class MessageBubble extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 5,
                         offset: const Offset(0, 2),
                       ),
@@ -562,7 +562,7 @@ class MessageBubble extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 9,
                           color: (message.isFromUser ? Colors.white : Colors.grey)
-                              .withOpacity(0.6),
+                              .withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -583,7 +583,7 @@ class MessageBubble extends StatelessWidget {
       width: 28,
       height: 28,
       decoration: BoxDecoration(
-        color: isUser ? theme.primaryColor.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
+        color: isUser ? theme.primaryColor.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.2),
         shape: BoxShape.circle,
       ),
       child: Icon(
@@ -599,7 +599,6 @@ class MessageBubble extends StatelessWidget {
   }
 }
 
-/// Indicateur de saisie (typing)
 class TypingIndicator extends StatelessWidget {
   const TypingIndicator({super.key});
 
@@ -646,7 +645,7 @@ class TypingIndicator extends StatelessWidget {
             width: 6,
             height: 6,
             decoration: BoxDecoration(
-              color: theme.primaryColor.withOpacity(0.6),
+              color: theme.primaryColor.withValues(alpha: 0.6),
               shape: BoxShape.circle,
             ),
           ),

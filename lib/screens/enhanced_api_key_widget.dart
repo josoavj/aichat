@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/link.dart';
 import '../services/api_manager.dart';
 
-/// Interface améliorée pour saisir la clé API
 class EnhancedApiKeyWidget extends StatefulWidget {
   final ValueChanged<String> onSubmitted;
   final VoidCallback? onCancel;
@@ -36,7 +35,6 @@ class _EnhancedApiKeyWidgetState extends State<EnhancedApiKeyWidget> {
     super.dispose();
   }
 
-  /// Valide et soumet la clé API
   Future<void> _submitApiKey() async {
     final apiKey = _textController.text.trim();
 
@@ -88,11 +86,10 @@ class _EnhancedApiKeyWidgetState extends State<EnhancedApiKeyWidget> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icône
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: theme.primaryColor.withOpacity(0.1),
+                  color: theme.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -102,18 +99,15 @@ class _EnhancedApiKeyWidgetState extends State<EnhancedApiKeyWidget> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Titre
               Text(
                 'Configurez votre clé API',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black87,
                 ),
               ),
               const SizedBox(height: 8),
-              // Description
               Text(
                 'Vous avez besoin d\'une clé API Google Generative AI pour utiliser cette application.',
                 textAlign: TextAlign.center,
@@ -123,14 +117,13 @@ class _EnhancedApiKeyWidgetState extends State<EnhancedApiKeyWidget> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Lien pour obtenir une clé
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: theme.primaryColor.withOpacity(0.1),
+                  color: theme.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: theme.primaryColor.withOpacity(0.3),
+                    color: theme.primaryColor.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -182,7 +175,6 @@ class _EnhancedApiKeyWidgetState extends State<EnhancedApiKeyWidget> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Champ de saisie
               TextField(
                 controller: _textController,
                 enabled: !_isSubmitting,
@@ -191,42 +183,7 @@ class _EnhancedApiKeyWidgetState extends State<EnhancedApiKeyWidget> {
                 onSubmitted: _isSubmitting ? null : (_) => _submitApiKey(),
                 decoration: InputDecoration(
                   labelText: 'Clé API',
-                  labelStyle: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  hintText: 'Collez votre clé API ici...',
-                  hintStyle: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey[500],
-                  ),
                   errorText: _errorMessage,
-                  errorMaxLines: 2,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: _errorMessage != null
-                          ? theme.colorScheme.error
-                          : Colors.grey[400]!,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: _errorMessage != null
-                          ? theme.colorScheme.error
-                          : theme.primaryColor,
-                      width: 2,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: _errorMessage != null
-                          ? theme.colorScheme.error
-                          : Colors.grey[300]!,
-                    ),
-                  ),
                   suffixIcon: _textController.text.isEmpty
                       ? null
                       : IconButton(
@@ -239,44 +196,19 @@ class _EnhancedApiKeyWidgetState extends State<EnhancedApiKeyWidget> {
                           onPressed: () {
                             setState(() => _isObscured = !_isObscured);
                           },
-                          tooltip: _isObscured
-                              ? 'Afficher la clé'
-                              : 'Masquer la clé',
                         ),
-                  filled: true,
                   fillColor: isDark ? Colors.grey[800] : Colors.grey[50],
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                ),
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: isDark ? Colors.white : Colors.black87,
                 ),
                 onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 24),
-              // Boutons
               Row(
                 children: [
                   if (widget.onCancel != null)
                     Expanded(
                       child: OutlinedButton(
                         onPressed: _isSubmitting ? null : widget.onCancel,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: BorderSide(
-                            color: theme.primaryColor.withOpacity(0.5),
-                          ),
-                        ),
-                        child: Text(
-                          'Annuler',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            color: theme.primaryColor,
-                          ),
-                        ),
+                        child: const Text('Annuler'),
                       ),
                     ),
                   if (widget.onCancel != null) const SizedBox(width: 12),
@@ -296,10 +228,6 @@ class _EnhancedApiKeyWidgetState extends State<EnhancedApiKeyWidget> {
                           : const Icon(Icons.check_circle),
                       label: Text(
                         _isSubmitting ? 'Vérification...' : 'Connecter',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
                       ),
                     ),
                   ),

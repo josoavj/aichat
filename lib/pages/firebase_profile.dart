@@ -37,7 +37,7 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Mon Profil"),
+        title: const Text('Mon Profil'),
         actions: [
           Consumer<AuthProvider>(
             builder: (context, authProvider, child) {
@@ -57,7 +57,7 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(CupertinoIcons.person_crop_circle_badge_exclam, 
-                    size: 80, color: theme.primaryColor.withOpacity(0.5)),
+                    size: 80, color: theme.primaryColor.withValues(alpha: 0.5)),
                   const SizedBox(height: 24),
                   Text(
                     'Session expirée',
@@ -105,11 +105,11 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: theme.primaryColor.withOpacity(0.2), width: 2),
+                border: Border.all(color: theme.primaryColor.withValues(alpha: 0.2), width: 2),
               ),
               child: CircleAvatar(
                 radius: 60,
-                backgroundColor: theme.primaryColor.withOpacity(0.1),
+                backgroundColor: theme.primaryColor.withValues(alpha: 0.1),
                 backgroundImage: _profileImageFile != null
                     ? FileImage(_profileImageFile!)
                     : (user?.photoURL != null && user!.photoURL!.isNotEmpty)
@@ -129,7 +129,7 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
                   color: theme.primaryColor,
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8)
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 8)
                   ],
                 ),
                 child: const Icon(CupertinoIcons.camera_fill, color: Colors.white, size: 20),
@@ -149,7 +149,7 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600),
             decoration: InputDecoration(
-              hintText: "Votre nom",
+              hintText: 'Votre nom',
               contentPadding: const EdgeInsets.symmetric(vertical: 10),
               border: UnderlineInputBorder(borderSide: BorderSide(color: theme.primaryColor)),
             ),
@@ -168,12 +168,12 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            _buildInfoRow(CupertinoIcons.mail, "Email", user?.email ?? 'N/A', theme),
+            _buildInfoRow(CupertinoIcons.mail, 'Email', user?.email ?? 'N/A', theme),
             const Divider(height: 32),
-            _buildInfoRow(CupertinoIcons.checkmark_shield, "Statut", 
+            _buildInfoRow(CupertinoIcons.checkmark_shield, 'Statut', 
               user?.emailVerified == true ? 'Vérifié' : 'Non vérifié', theme),
             const Divider(height: 32),
-            _buildInfoRow(CupertinoIcons.calendar, "Membre depuis", 
+            _buildInfoRow(CupertinoIcons.calendar, 'Membre depuis', 
               _formatDate(user?.metadata?.creationTime), theme),
           ],
         ),
@@ -199,7 +199,7 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'N/A';
-    return "${date.day}/${date.month}/${date.year}";
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   Widget _buildActionsSection(BuildContext context, AuthProvider authProvider, ThemeData theme) {
@@ -207,7 +207,7 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
       children: [
         if (!_isEditing)
           _buildActionButton(
-            label: "Modifier le profil",
+            label: 'Modifier le profil',
             icon: Icons.edit_outlined,
             onPressed: () => setState(() => _isEditing = true),
             theme: theme,
@@ -217,11 +217,11 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
             children: [
               Expanded(
                 child: _buildActionButton(
-                  label: "Sauver",
+                  label: 'Sauver',
                   icon: Icons.check,
                   onPressed: () async {
                     await authProvider.updateProfile(displayName: _nameController.text);
-                    setState(() => _isEditing = false);
+                    if (mounted) setState(() => _isEditing = false);
                   },
                   theme: theme,
                   isPrimary: true,
@@ -230,7 +230,7 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildActionButton(
-                  label: "Annuler",
+                  label: 'Annuler',
                   icon: Icons.close,
                   onPressed: () => setState(() => _isEditing = false),
                   theme: theme,
@@ -240,7 +240,7 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
           ),
         const SizedBox(height: 12),
         _buildActionButton(
-          label: "Supprimer mon compte",
+          label: 'Supprimer mon compte',
           icon: CupertinoIcons.trash,
           onPressed: () => _showDeleteAccountDialog(context, authProvider),
           theme: theme,
@@ -264,13 +264,71 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
         icon: Icon(icon, size: 20, color: isDanger ? Colors.redAccent : (isPrimary ? Colors.white : theme.primaryColor)),
         label: Text(label),
         style: OutlinedButton.styleFrom(
-          backgroundColor: isPrimary ? theme.primaryColor : (isDanger ? Colors.redAccent.withOpacity(0.05) : null),
+          backgroundColor: isPrimary ? theme.primaryColor : (isDanger ? Colors.redAccent.withValues(alpha: 0.05) : null),
           foregroundColor: isDanger ? Colors.redAccent : (isPrimary ? Colors.white : theme.primaryColor),
           side: BorderSide(color: isDanger ? Colors.redAccent : theme.primaryColor),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         onPressed: onPressed,
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, AuthProvider authProvider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Se déconnecter'),
+        content: const Text('Êtes-vous sûr de vouloir vous déconnecter?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () {
+              authProvider.signOut();
+              Navigator.of(context).pushReplacementNamed('/login');
+            },
+            child: const Text('Déconnecter'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog(BuildContext context, AuthProvider authProvider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Supprimer le compte'),
+        content: const Text(
+          'Cette action est irréversible. Tous vos données seront supprimées.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final success = await authProvider.deleteAccount();
+              if (mounted) {
+                if (success) {
+                  Navigator.of(context).pushReplacementNamed('/login');
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(authProvider.errorMessage ?? 'Erreur'),
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }
@@ -336,213 +394,5 @@ class _FirebaseProfilePageState extends State<FirebaseProfilePage> {
         );
       }
     }
-  }
-
-  Widget _buildInfoSection(dynamic user) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Informations du compte',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildInfoTile('Email', user?.email ?? 'N/A'),
-            const SizedBox(height: 12),
-            _buildInfoTile(
-              'Vérifié',
-              user?.emailVerified == true ? 'Oui' : 'Non',
-            ),
-            const SizedBox(height: 12),
-            _buildInfoTile(
-              'Créé le',
-              user?.metadata?.creationTime?.toString().split('.')[0] ?? 'N/A',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoTile(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-        Text(
-          value,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionsSection(BuildContext context, AuthProvider authProvider) {
-    return Column(
-      children: [
-        if (!_isEditing)
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.edit),
-              label: const Text('Modifier le profil'),
-              onPressed: () {
-                setState(() {
-                  _isEditing = true;
-                });
-              },
-            ),
-          )
-        else
-          Column(
-            children: [
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.check),
-                  label: const Text('Sauvegarder'),
-                  onPressed: () async {
-                    await authProvider.updateProfile(
-                      displayName: _nameController.text.isNotEmpty
-                          ? _nameController.text
-                          : null,
-                    );
-                    if (mounted) {
-                      setState(() {
-                        _isEditing = false;
-                      });
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Profil mis à jour'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      }
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.close),
-                  label: const Text('Annuler'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isEditing = false;
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            icon: const Icon(Icons.security),
-            label: const Text('Changer le mot de passe'),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fonctionnalité à venir'),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            icon: const Icon(Icons.delete_outline),
-            label: const Text('Supprimer le compte'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            onPressed: () => _showDeleteAccountDialog(context, authProvider),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context, AuthProvider authProvider) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Se déconnecter'),
-        content: const Text('Êtes-vous sûr de vouloir vous déconnecter?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () {
-              authProvider.signOut();
-              Navigator.of(context).pushReplacementNamed('/login');
-            },
-            child: const Text('Déconnecter'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteAccountDialog(
-      BuildContext context, AuthProvider authProvider) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Supprimer le compte'),
-        content: const Text(
-          'Cette action est irréversible. Tous vos données seront supprimées.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final success = await authProvider.deleteAccount();
-              if (mounted) {
-                if (success) {
-                  Navigator.of(context).pushReplacementNamed('/login');
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(authProvider.errorMessage ?? 'Erreur'),
-                    ),
-                  );
-                }
-              }
-            },
-            child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
   }
 }

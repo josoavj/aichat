@@ -23,28 +23,31 @@ class _ChatScreenState extends State<ChatScreen> {
     _loadApiKey();
   }
 
-  // Chargement de la clé API depuis l'API Manager
   Future<void> _loadApiKey() async {
     try {
       final key = await ApiManager.getApiKey();
-      setState(() {
-        apiKey = key;
-      });
+      if (mounted) {
+        setState(() {
+          apiKey = key;
+        });
+      }
     } catch (e) {
-      // Clé API non trouvée, l'utilisateur devra la saisir
-      setState(() {
-        apiKey = null;
-      });
+      if (mounted) {
+        setState(() {
+          apiKey = null;
+        });
+      }
     }
   }
 
-  // Fonction pour gérer la soumission de la clé API
   Future<void> _handleApiKeySubmitted(String key) async {
     try {
       await ApiManager.saveApiKey(key);
-      setState(() {
-        apiKey = key;
-      });
+      if (mounted) {
+        setState(() {
+          apiKey = key;
+        });
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -57,7 +60,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // Fonction pour réinitialiser la clé API
   void _resetApiKey() {
     setState(() {
       apiKey = null;
@@ -65,7 +67,6 @@ class _ChatScreenState extends State<ChatScreen> {
     ApiManager.deleteApiKey();
   }
 
-  // Fonction pour afficher la boîte de dialogue de confirmation de sortie
   void _showExitConfirmationDialog() {
     showDialog(
       context: context,
@@ -86,7 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Navigator.of(context).pop();
               },
               child: Text(
-                "Annuler",
+                'Annuler',
                 style: GoogleFonts.poppins(
                     color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.w600),
@@ -97,7 +98,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 SystemNavigator.pop();
               },
               child: Text(
-                "Quitter",
+                'Quitter',
                 style: GoogleFonts.poppins(
                     color: Colors.red, fontWeight: FontWeight.w600),
               ),
@@ -110,15 +111,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Utilisation de Consumer pour écouter les changements de thème
     return Consumer<ThemeNotifier>(
       builder: (context, themeNotifier, child) {
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              'My Chat-AI',
+              'FocusFlow',
               style: GoogleFonts.poppins(
-                color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -126,12 +125,12 @@ class _ChatScreenState extends State<ChatScreen> {
             centerTitle: true,
             actions: [
               Tooltip(
-                message: "Mon Profil",
+                message: 'Mon Profil',
                 child: IconButton(
                   onPressed: () {
                     Navigator.of(context).pushNamed('/profile');
                   },
-                  icon: const Icon(Icons.person, color: Colors.white),
+                  icon: const Icon(Icons.person),
                 ),
               ),
             ],
@@ -154,7 +153,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-// Widget pour le tiroir de navigation (Drawer)
 class _AppDrawer extends StatelessWidget {
   final VoidCallback onExit;
 
@@ -162,8 +160,7 @@ class _AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final theme = Theme.of(context);
 
     return Drawer(
       child: ListView(
@@ -171,7 +168,7 @@ class _AppDrawer extends StatelessWidget {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: isDark ? theme.primaryColor : theme.primaryColor,
+              color: theme.primaryColor,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,7 +176,7 @@ class _AppDrawer extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: Colors.white.withOpacity(0.2),
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
                   child: const Icon(
                     Icons.bubble_chart,
                     size: 40,
@@ -188,7 +185,7 @@ class _AppDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'MyAI ChatBot',
+                  'FocusFlow',
                   style: GoogleFonts.poppins(
                     fontSize: 22,
                     color: Colors.white,
@@ -199,19 +196,32 @@ class _AppDrawer extends StatelessWidget {
                   'Votre assistant intelligent',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
               ],
             ),
           ),
           ListTile(
-            leading: Icon(Icons.info, color: theme.primaryColor),
+            leading: Icon(Icons.dashboard_outlined, color: theme.primaryColor),
+            title: Text(
+              'Dashboard',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              // Navigation vers Dashboard à venir
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.info_outline, color: theme.primaryColor),
             title: Text(
               'À propos',
               style: GoogleFonts.poppins(
                 fontSize: 16,
-                color: isDark ? Colors.white70 : Colors.blueGrey[800],
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -219,16 +229,13 @@ class _AppDrawer extends StatelessWidget {
               Navigator.pop(context);
               Navigator.of(context).pushNamed('/about');
             },
-            selectedTileColor: theme.primaryColor.withOpacity(0.1),
-            hoverColor: theme.primaryColor.withOpacity(0.05),
           ),
           ListTile(
-            leading: Icon(Icons.settings, color: theme.primaryColor),
+            leading: Icon(Icons.settings_outlined, color: theme.primaryColor),
             title: Text(
               'Paramètres',
               style: GoogleFonts.poppins(
                 fontSize: 16,
-                color: isDark ? Colors.white70 : Colors.blueGrey[800],
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -236,12 +243,10 @@ class _AppDrawer extends StatelessWidget {
               Navigator.pop(context);
               Navigator.of(context).pushNamed('/settings');
             },
-            selectedTileColor: theme.primaryColor.withOpacity(0.1),
-            hoverColor: theme.primaryColor.withOpacity(0.05),
           ),
           const Divider(indent: 15, endIndent: 15),
           ListTile(
-            leading: const Icon(Icons.exit_to_app, color: Colors.redAccent),
+            leading: const Icon(Icons.exit_to_app_rounded, color: Colors.redAccent),
             title: Text(
               'Quitter',
               style: GoogleFonts.poppins(
@@ -254,8 +259,6 @@ class _AppDrawer extends StatelessWidget {
               Navigator.pop(context);
               onExit();
             },
-            selectedTileColor: Colors.redAccent.withOpacity(0.1),
-            hoverColor: Colors.redAccent.withOpacity(0.05),
           ),
         ],
       ),
