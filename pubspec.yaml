@@ -55,6 +55,8 @@ dependencies:
   logger: ^2.2.0
   image_picker: ^1.2.0
   crypto: ^3.0.3
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:
