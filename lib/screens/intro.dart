@@ -1,6 +1,6 @@
-import 'package:ai_test/pages/firebase_login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 class Intro extends StatefulWidget {
   const Intro({super.key});
 
@@ -13,9 +13,7 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
 
-  // Durée souhaitée pour les animations d'introduction
   final Duration _animationDuration = const Duration(milliseconds: 1500);
-  // Délai avant de naviguer (devrait être >= _animationDuration si vous voulez voir toute l'animation)
   final Duration _navigationDelay = const Duration(milliseconds: 2000);
 
   @override
@@ -23,7 +21,7 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: _animationDuration, // Durée de l'animation ajustée
+      duration: _animationDuration,
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -36,24 +34,18 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: Curves.easeOutBack, // Effet rebondissant pour l'avatar
+        curve: Curves.easeOutBack,
       ),
     );
 
-    // Lance l'animation au démarrage
     _controller.forward();
-
-    // Navigue après un délai
     _scheduleNavigation();
   }
 
   void _scheduleNavigation() {
     Future.delayed(_navigationDelay, () {
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const FirebaseLoginPage()),
-        );
+        Navigator.pushReplacementNamed(context, '/');
       }
     });
   }
@@ -77,8 +69,8 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
           gradient: LinearGradient(
             colors: [
               theme.primaryColor,
-              theme.primaryColor.withOpacity(0.8),
-              theme.primaryColor.withAlpha(200),
+              theme.primaryColor.withValues(alpha: 0.8),
+              theme.primaryColor.withValues(alpha: 0.7),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -86,13 +78,12 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
         ),
         child: Stack(
           children: [
-            // Cercles décoratifs en arrière-plan
             Positioned(
               top: -50,
               right: -50,
               child: CircleAvatar(
                 radius: 100,
-                backgroundColor: Colors.white.withOpacity(0.1),
+                backgroundColor: Colors.white.withValues(alpha: 0.1),
               ),
             ),
             Positioned(
@@ -100,7 +91,7 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
               left: -80,
               child: CircleAvatar(
                 radius: 150,
-                backgroundColor: Colors.white.withOpacity(0.05),
+                backgroundColor: Colors.white.withValues(alpha: 0.05),
               ),
             ),
             Center(
@@ -115,10 +106,10 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white.withOpacity(0.2), width: 2),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 2),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
                             ),
@@ -126,8 +117,8 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
                         ),
                         child: CircleAvatar(
                           radius: avatarDiameter / 2,
-                          backgroundImage: const AssetImage("assets/images/todoroki.png"),
-                          backgroundColor: Colors.white24,
+                          backgroundImage: const AssetImage('assets/images/todoroki.png'),
+                          backgroundColor: Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
                     ),
@@ -141,14 +132,14 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
                           'Welcome to',
                           style: GoogleFonts.poppins(
                             fontSize: 18,
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontWeight: FontWeight.w500,
                             letterSpacing: 1.2,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'MyAI Assistant',
+                          'FocusFlow',
                           style: GoogleFonts.poppins(
                             fontSize: 32,
                             color: Colors.white,
@@ -157,7 +148,7 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
                             shadows: [
                               Shadow(
                                 blurRadius: 15.0,
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 offset: const Offset(0, 5),
                               ),
                             ],
@@ -168,7 +159,7 @@ class _IntroState extends State<Intro> with SingleTickerProviderStateMixin {
                           width: 40,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.3),
+                            color: Colors.white.withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
