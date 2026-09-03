@@ -138,14 +138,6 @@ class _SettingsState extends State<Settings> {
     );
   }
 
-  // Fonction de déconnexion
-  void _handleLogout() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const FirebaseLoginPage()),
-    );
-  }
-
   // Fonction pour effacer l'historique du chat
   void _clearChatHistory() async {
     showDialog(
@@ -198,7 +190,7 @@ class _SettingsState extends State<Settings> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         children: [
-          _buildSectionHeader("Apparence"),
+          _buildSectionHeader('Apparence'),
           _buildSettingCard([
             ListTile(
               leading: _buildIcon(Icons.palette_outlined, theme.primaryColor),
@@ -223,7 +215,7 @@ class _SettingsState extends State<Settings> {
             ),
           ]),
           const SizedBox(height: 24),
-          _buildSectionHeader("Interface"),
+          _buildSectionHeader('Interface'),
           _buildSettingCard([
             ListTile(
               leading: _buildIcon(Icons.text_fields, theme.primaryColor),
@@ -252,7 +244,7 @@ class _SettingsState extends State<Settings> {
             ),
           ]),
           const SizedBox(height: 24),
-          _buildSectionHeader("Sécurité & Données"),
+          _buildSectionHeader('Sécurité & Données'),
           _buildSettingCard([
             ListTile(
               leading: _buildIcon(Icons.key_outlined, theme.primaryColor),
@@ -267,21 +259,6 @@ class _SettingsState extends State<Settings> {
               onTap: _clearChatHistory,
             ),
           ]),
-          const SizedBox(height: 32),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.logout_rounded),
-              label: const Text("Déconnexion"),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.redAccent,
-                side: const BorderSide(color: Colors.redAccent),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-              onPressed: _handleLogout,
-            ),
-          ),
         ],
       ),
     );
