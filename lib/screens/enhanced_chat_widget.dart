@@ -2,8 +2,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:provider/provider.dart';
 import '../models/chat_message.dart';
 import '../services/api_service.dart';
+import '../providers/focus_provider.dart';
 
 /// Interface améliorée pour les conversations de chat
 class EnhancedChatWidget extends StatefulWidget {
@@ -44,6 +46,23 @@ class _EnhancedChatWidgetState extends State<EnhancedChatWidget> {
     try {
       _apiService = ApiService();
       _apiService.initialize(widget.apiKey);
+      
+      // Configuration des actions UI déclenchées par l'IA
+      _apiService.onUiAction = (action, params) {
+        if (action == 'lancer_focus' && mounted) {
+          final mins = params['minutes'] as int;
+          context.read<FocusProvider>().startTimer(mins);
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Focus Mode activé pour $mins minutes'),
+              backgroundColor: Theme.of(context).primaryColor,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      };
+
       if (mounted) setState(() => _isInitializing = false);
     } catch (e) {
       if (mounted) {
