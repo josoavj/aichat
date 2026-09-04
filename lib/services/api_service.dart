@@ -9,6 +9,9 @@ class ApiService {
   late ChatSession _chat;
   bool _isInitialized = false;
   final TaskService _taskService = TaskService();
+  
+  /// Callback pour les actions UI (comme lancer un minuteur)
+  void Function(String action, Map<String, dynamic> params)? onUiAction;
 
   // Configuration
   static const Duration _apiTimeout = Duration(seconds: 30);
@@ -63,6 +66,13 @@ class ApiService {
             'limite': Schema.number(description: 'Nombre d\'entrées à récupérer'),
           }),
         ),
+        FunctionDeclaration(
+          'lancer_focus',
+          'Démarre un minuteur de concentration (Pomodoro) pour l\'utilisateur.',
+          Schema.object(properties: {
+            'minutes': Schema.number(description: 'La durée du minuteur en minutes (défaut: 25)'),
+          }),
+        ),
       ])
     ];
   }
@@ -76,14 +86,14 @@ class ApiService {
         safetySettings: safetySettings,
         tools: _tools,
         systemInstruction: Content.system(
-          "Tu es 'FocusFlow', un assistant personnel ultra-performant conçu pour aider les personnes hyperactives à rester concentrées. "
-          "Tu as accès à une liste de tâches locale et un journal sur l'appareil de l'utilisateur. "
-          "Règles impératives : "
-          "1. Quand l'utilisateur mentionne une tâche à faire, utilise TOUJOURS 'ajouter_tache'. "
-          "2. Découpe SYSTEMATIQUEMENT les tâches complexes en micro-étapes. "
-          "3. Sois concis. "
-          "4. Si l'utilisateur demande ce qu'il a à faire, utilise 'lister_taches'. "
-          "5. Quand une pensée ou note est exprimée, utilise 'ajouter_journal'."
+          'Tu es \'FocusFlow\', un assistant personnel ultra-performant conçu pour aider les personnes hyperactives à rester concentrées. '
+          'Tu as accès à une liste de tâches locale et un journal sur l\'appareil de l\'utilisateur. '
+          'Règles impératives : '
+          '1. Quand l\'utilisateur mentionne une tâche à faire, utilise TOUJOURS \'ajouter_tache\'. '
+          '2. Découpe SYSTEMATIQUEMENT les tâches complexes en micro-étapes. '
+          '3. Sois concis. '
+          '4. Si l\'utilisateur demande ce qu\'il a à faire, utilise \'lister_taches\'. '
+          '5. Quand une pensée ou note est exprimée, utilise \'ajouter_journal\'.'
         ),
       );
       _chat = _model.startChat(history: []);
@@ -141,6 +151,11 @@ class ApiService {
       case 'terminer_tache':
         final res = await _taskService.completeTask((args['id'] as num).toInt());
         return {'resultat': res};
+      case 'lancer_focus':
+        if (onUiAction != null) {
+          onUiAction!('lancer_focus', {'minutes': (args['minutes'] ?? 25).toInt()});
+        }
+        return {'resultat': 'Minuteur lancé pour ${args['minutes'] ?? 25} minutes.'};
       default:
         return {'erreur': 'Fonction inconnue'};
     }
