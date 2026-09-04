@@ -103,7 +103,7 @@ class ThemeNotifier with ChangeNotifier {
     if (!_isInitialized) return;
     try {
       _primarySwatch = AppThemes.createMaterialColor(newColor);
-      await _prefs.setInt(PreferencesKeys.primaryColorValue, newColor.value);
+      await _prefs.setInt(PreferencesKeys.primaryColorValue, newColor.toARGB32());
       notifyListeners();
     } catch (e) {
       AppLogger.error('Erreur lors du changement de couleur', e);
