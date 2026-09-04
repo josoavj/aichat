@@ -2,12 +2,11 @@ import 'package:ai_test/screens/dashboard_screen.dart';
 import 'package:ai_test/screens/enhanced_api_key_widget.dart';
 import 'package:ai_test/screens/enhanced_chat_widget.dart';
 import 'package:ai_test/screens/journal_screen.dart';
+import 'package:ai_test/screens/focus_screen.dart';
 import 'package:ai_test/services/api_manager.dart';
-import 'package:ai_test/others/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -55,8 +54,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     if (apiKey == null) {
       return EnhancedApiKeyWidget(onSubmitted: _handleApiKeySubmitted);
     }
@@ -65,9 +62,10 @@ class _ChatScreenState extends State<ChatScreen> {
       EnhancedChatWidget(apiKey: apiKey!, onApiKeyInvalid: _resetApiKey),
       const DashboardScreen(),
       const JournalScreen(),
+      const FocusScreen(),
     ];
 
-    final List<String> titles = ['FocusFlow Chat', 'Mes Tâches', 'Mon Journal'];
+    final List<String> titles = ['FocusFlow Chat', 'Mes Tâches', 'Mon Journal', 'Focus Mode'];
 
     return Scaffold(
       appBar: AppBar(
@@ -84,7 +82,10 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
       drawer: _AppDrawer(onExit: () => SystemNavigator.pop()),
-      body: screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: screens,
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -94,7 +95,7 @@ class _ChatScreenState extends State<ChatScreen> {
               offset: const Offset(0, -5),
             ),
           ],
-        ],
+        ),
         child: NavigationBar(
           selectedIndex: _currentIndex,
           onDestinationSelected: (index) => setState(() => _currentIndex = index),
@@ -110,9 +111,14 @@ class _ChatScreenState extends State<ChatScreen> {
               label: 'Tâches',
             ),
             NavigationDestination(
-              icon: Icon(Icons.auto_stories_outline),
+              icon: Icon(Icons.auto_stories_outlined),
               selectedIcon: Icon(Icons.auto_stories),
               label: 'Journal',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.timer_outlined),
+              selectedIcon: Icon(Icons.timer),
+              label: 'Focus',
             ),
           ],
         ),

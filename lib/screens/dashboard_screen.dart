@@ -35,7 +35,26 @@ class DashboardScreen extends StatelessWidget {
           itemCount: taskProvider.tasks.length,
           itemBuilder: (context, index) {
             final task = taskProvider.tasks[index];
-            return _TaskCard(task: task);
+            return Dismissible(
+              key: Key(task.id.toString()),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              ),
+              onDismissed: (_) {
+                taskProvider.deleteTask(task.id!);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Tâche supprimée'), behavior: SnackBarBehavior.floating),
+                );
+              },
+              child: _TaskCard(task: task),
+            );
           },
         );
       },

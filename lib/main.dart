@@ -1,3 +1,4 @@
+import 'package:ai_test/providers/focus_provider.dart';
 import 'package:ai_test/providers/profile_provider.dart';
 import 'package:ai_test/pages/profile_page.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -24,6 +25,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => ProfileProvider()..loadProfile()),
         ChangeNotifierProvider(create: (context) => TaskProvider()..loadTasks()),
         ChangeNotifierProvider(create: (context) => JournalProvider()..loadEntries()),
+        ChangeNotifierProvider(create: (context) => FocusProvider()),
       ],
       child: const MyApp(),
     ),

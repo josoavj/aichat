@@ -1,4 +1,3 @@
-import 'package:ai_test/pages/firebase_login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -95,6 +94,8 @@ class _SettingsState extends State<Settings> {
     final TextEditingController keyController =
         TextEditingController(text: currentKey);
 
+    if (!mounted) return;
+
     showDialog(
       context: context,
       builder: (context) {
@@ -120,7 +121,7 @@ class _SettingsState extends State<Settings> {
               onPressed: () async {
                 if (keyController.text.isNotEmpty) {
                   await prefs.setString('gemini_api_key', keyController.text);
-                  if (mounted) {
+                  if (context.mounted) {
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -140,6 +141,9 @@ class _SettingsState extends State<Settings> {
 
   // Fonction pour effacer l'historique du chat
   void _clearChatHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+
     showDialog(
       context: context,
       builder: (context) {
@@ -157,10 +161,9 @@ class _SettingsState extends State<Settings> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
                 await prefs.remove(
                     'chat_history'); // Supprime l'historique (clé fictive)
-                if (mounted) {
+                if (context.mounted) {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

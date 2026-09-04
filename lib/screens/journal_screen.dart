@@ -35,48 +35,67 @@ class JournalScreen extends StatelessWidget {
           itemCount: journalProvider.entries.length,
           itemBuilder: (context, index) {
             final entry = journalProvider.entries[index];
-            return Card(
-              margin: const EdgeInsets.only(bottom: 16),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          DateFormat('dd MMMM yyyy, HH:mm', 'fr_FR').format(entry.createdAt),
-                          style: GoogleFonts.poppins(fontSize: 12, color: theme.primaryColor, fontWeight: FontWeight.w500),
-                        ),
-                        if (entry.mood != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: theme.primaryColor.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(entry.mood!, style: const TextStyle(fontSize: 10)),
+            return Dismissible(
+              key: Key(entry.id.toString()),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              ),
+              onDismissed: (_) {
+                journalProvider.deleteEntry(entry.id!);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Note supprimée'), behavior: SnackBarBehavior.floating),
+                );
+              },
+              child: Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            DateFormat('dd MMMM yyyy, HH:mm', 'fr_FR').format(entry.createdAt),
+                            style: GoogleFonts.poppins(fontSize: 12, color: theme.primaryColor, fontWeight: FontWeight.w500),
                           ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      entry.content,
-                      style: GoogleFonts.poppins(fontSize: 14, height: 1.6),
-                    ),
-                    if (entry.tags.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        children: entry.tags.map((tag) => Chip(
-                          label: Text(tag, style: const TextStyle(fontSize: 10)),
-                          padding: EdgeInsets.zero,
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        )).toList(),
+                          if (entry.mood != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: theme.primaryColor.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(entry.mood!, style: const TextStyle(fontSize: 10)),
+                            ),
+                        ],
                       ),
+                      const SizedBox(height: 12),
+                      Text(
+                        entry.content,
+                        style: GoogleFonts.poppins(fontSize: 14, height: 1.6),
+                      ),
+                      if (entry.tags.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          children: entry.tags.map((tag) => Chip(
+                            label: Text(tag, style: const TextStyle(fontSize: 10)),
+                            padding: EdgeInsets.zero,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          )).toList(),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             );
