@@ -49,6 +49,35 @@ class LocalDatabaseService {
         tags TEXT
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE chat_history(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        role TEXT NOT NULL,
+        content TEXT NOT NULL,
+        createdAt TEXT NOT NULL
+      )
+    ''');
+  }
+
+  // Opérations Chat
+  Future<int> insertChatMessage(String role, String content) async {
+    final db = await database;
+    return await db.insert('chat_history', {
+      'role': role,
+      'content': content,
+      'createdAt': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getChatHistory({int limit = 50}) async {
+    final db = await database;
+    return await db.query('chat_history', orderBy: 'createdAt ASC', limit: limit);
+  }
+
+  Future<void> clearChatHistory() async {
+    final db = await database;
+    await db.delete('chat_history');
   }
 
   // Opérations Journal
