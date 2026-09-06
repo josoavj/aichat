@@ -1,10 +1,12 @@
 import '../models/todo_task.dart';
+import '../models/journal_entry.dart';
 import 'local_db_service.dart';
 import 'logger_service.dart';
 
 class TaskService {
   final _db = LocalDatabaseService();
 
+  // Tâches
   Future<String> addTask(String title, {String description = '', int urgency = 3, List<String>? subTasks}) async {
     try {
       final task = TodoTask(
@@ -53,5 +55,41 @@ class TaskService {
     } catch (e) {
       return "Erreur : Tâche avec l'ID $id introuvable.";
     }
+  }
+
+  // Journal
+  Future<String> addJournalEntry(String content, {String? mood, List<String>? tags}) async {
+    try {
+      final entry = JournalEntry(content: content, mood: mood, tags: tags ?? []);
+      await _db.insertJournalEntry(entry);
+      return 'Note enregistrée dans votre journal.';
+    } catch (e) {
+      return 'Erreur lors de l\'enregistrement de la note.';
+    }
+  }
+
+  Future<String> listJournalEntries({int limit = 10}) async {
+    try {
+      final entries = await _db.getJournalEntries();
+      final subset = entries.take(limit).toList();
+      if (subset.isEmpty) return 'Votre journal est vide.';
+      
+      final buffer = StringBuffer('Dernières entrées du journal :\n');
+      for (var entry in subset) {
+        buffer.writeln('[${entry.createdAt.toString().split(' ')[0]}] ${entry.content}');
+      }
+      return buffer.toString();
+    } catch (e) {
+      return 'Erreur lors de la lecture du journal.';
+    }
+  }
+
+  // Chat History
+  Future<void> saveChatMessage(String role, String content) async {
+    await _db.insertChatMessage(role, content);
+  }
+
+  Future<List<Map<String, dynamic>>> getChatHistory() async {
+    return await _db.getChatHistory();
   }
 }
