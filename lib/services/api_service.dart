@@ -77,8 +77,8 @@ class ApiService {
     ];
   }
 
-  /// Initialise le service avec une clé API
-  void initialize(String apiKey) {
+  /// Initialise le service avec une clé API et charge l'historique
+  Future<void> initialize(String apiKey) async {
     try {
       _model = GenerativeModel(
         model: 'gemini-1.5-flash',
@@ -86,19 +86,30 @@ class ApiService {
         safetySettings: safetySettings,
         tools: _tools,
         systemInstruction: Content.system(
-          'Tu es \'FocusFlow\', un assistant personnel ultra-performant conçu pour aider les personnes hyperactives à rester concentrées. '
-          'Tu as accès à une liste de tâches locale et un journal sur l\'appareil de l\'utilisateur. '
-          'Règles impératives : '
-          '1. Quand l\'utilisateur mentionne une tâche à faire, utilise TOUJOURS \'ajouter_tache\'. '
-          '2. Découpe SYSTEMATIQUEMENT les tâches complexes en micro-étapes. '
-          '3. Sois concis. '
-          '4. Si l\'utilisateur demande ce qu\'il a à faire, utilise \'lister_taches\'. '
-          '5. Quand une pensée ou note est exprimée, utilise \'ajouter_journal\'.'
+          'Tu es \'FocusFlow\', le copilote exécutif de l\'utilisateur. Ton but est de hacker son attention pour transformer son hyperactivité en super-pouvoir. '
+          'Règles d\'or de ton Persona : '
+          '1. **Micro-étapes ridicules** : Ne propose jamais une étape de plus de 10 min. Si l\'utilisateur veut "nettoyer la cuisine", ton étape 1 est "Mettre 3 assiettes dans le lave-vaisselle". '
+          '2. **Scan visuel** : Utilise massivement le **gras** pour les actions et les objets. Les hyperactifs scannent le texte au lieu de le lire. '
+          '3. **Zéro Culpabilité** : Si une tâche est en retard, dis "C\'est pas grave, le plan change. On fait quoi maintenant ?". '
+          '4. **Body Doubling** : Utilise le "On" ou "Nous". Dis "On s\'y met ensemble". '
+          '5. **Dopamine Hit** : Célèbre chaque petite victoire. '
+          '6. **Accès Local** : Utilise \'ajouter_tache\', \'lister_taches\', \'terminer_tache\' pour agir. '
+          '7. **Brain Dump** : Si l\'utilisateur divague, utilise \'ajouter_journal\' pour capturer l\'idée et ramène-le au focus actuel. '
+          '8. **Mode Urgence** : Si l\'utilisateur est submergé, propose-lui de fermer les yeux et de lancer un Focus de 5 min via \'lancer_focus\'.'
         ),
       );
-      _chat = _model.startChat(history: []);
+
+      // Charger l'historique depuis la base de données
+      final history = await _taskService.getChatHistory();
+      final List<Content> chatHistory = history.map((m) {
+        return m['role'] == 'user' 
+          ? Content.text(m['content']) 
+          : Content.model([TextPart(m['content'])]);
+      }).toList();
+
+      _chat = _model.startChat(history: chatHistory);
       _isInitialized = true;
-      AppLogger.info('ApiService (FocusFlow) initialisé');
+      AppLogger.info('ApiService (FocusFlow) initialisé avec mémoire');
     } catch (e) {
       AppLogger.error('Erreur lors de l\'initialisation d\'ApiService', e);
       throw ApiServiceException('Erreur lors de l\'initialisation: $e');
@@ -107,12 +118,16 @@ class ApiService {
 
   bool get isInitialized => _isInitialized;
 
-  /// Envoie un message et gère les appels de fonctions
+  /// Envoie un message, gère les fonctions et sauvegarde
   Future<String> sendMessage(String message) async {
     if (!_isInitialized) throw ApiServiceException('Service non initialisé.');
 
     try {
       AppLogger.debug('Envoi message : $message');
+      
+      // Sauvegarder le message utilisateur
+      await _taskService.saveChatMessage('user', message);
+
       var response = await _chat.sendMessage(Content.text(message)).timeout(_apiTimeout);
 
       while (response.functionCalls.isNotEmpty) {
@@ -126,7 +141,12 @@ class ApiService {
         response = await _chat.sendMessage(Content.functionResponses(functionResponses)).timeout(_apiTimeout);
       }
 
-      return response.text ?? 'Action effectuée.';
+      final responseText = response.text ?? 'Action effectuée.';
+      
+      // Sauvegarder la réponse de l'IA
+      await _taskService.saveChatMessage('model', responseText);
+
+      return responseText;
     } catch (e) {
       AppLogger.error('Erreur lors de l\'envoi du message', e);
       throw ApiServiceException('Erreur: $e');
@@ -151,6 +171,16 @@ class ApiService {
       case 'terminer_tache':
         final res = await _taskService.completeTask((args['id'] as num).toInt());
         return {'resultat': res};
+      case 'ajouter_journal':
+        final res = await _taskService.addJournalEntry(
+          args['contenu'],
+          mood: args['humeur'],
+          tags: args['tags'] != null ? List<String>.from(args['tags']) : null,
+        );
+        return {'resultat': res};
+      case 'lister_journal':
+        final res = await _taskService.listJournalEntries(limit: (args['limite'] ?? 10).toInt());
+        return {'journal': res};
       case 'lancer_focus':
         if (onUiAction != null) {
           onUiAction!('lancer_focus', {'minutes': (args['minutes'] ?? 25).toInt()});
@@ -159,6 +189,12 @@ class ApiService {
       default:
         return {'erreur': 'Fonction inconnue'};
     }
+  }
+
+  /// Obtient l'historique actuel de la session de chat
+  List<Content> getHistory() {
+    if (!_isInitialized) return [];
+    return _chat.history.toList();
   }
 
   void resetConversation() {
