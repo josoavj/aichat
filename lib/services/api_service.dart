@@ -73,6 +73,14 @@ class ApiService {
             'minutes': Schema.number(description: 'La durée du minuteur en minutes (défaut: 25)'),
           }),
         ),
+        FunctionDeclaration(
+          'programmer_rappel',
+          'Programme une notification de rappel pour l\'utilisateur à un moment précis.',
+          Schema.object(properties: {
+            'message': Schema.string(description: 'Le contenu du rappel'),
+            'delai_minutes': Schema.number(description: 'Dans combien de minutes envoyer le rappel'),
+          }, requiredProperties: ['message', 'delai_minutes']),
+        ),
       ])
     ];
   }
@@ -186,6 +194,12 @@ class ApiService {
           onUiAction!('lancer_focus', {'minutes': (args['minutes'] ?? 25).toInt()});
         }
         return {'resultat': 'Minuteur lancé pour ${args['minutes'] ?? 25} minutes.'};
+      case 'programmer_rappel':
+        final res = await _taskService.scheduleReminder(
+          args['message'],
+          (args['delai_minutes'] as num).toInt(),
+        );
+        return {'resultat': res};
       default:
         return {'erreur': 'Fonction inconnue'};
     }
