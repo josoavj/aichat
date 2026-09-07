@@ -1,4 +1,6 @@
-import 'package:sqflite/sqflite.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import '../models/todo_task.dart';
 import '../models/journal_entry.dart';
@@ -18,6 +20,11 @@ class LocalDatabaseService {
   }
 
   Future<Database> _initDatabase() async {
+    if (!kIsWeb && (Platform.isLinux || Platform.isWindows || Platform.isMacOS)) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+
     String path = join(await getDatabasesPath(), 'productivity.db');
     return await openDatabase(
       path,

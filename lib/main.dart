@@ -1,3 +1,4 @@
+import 'package:ai_test/services/notification_service.dart';
 import 'package:ai_test/providers/focus_provider.dart';
 import 'package:ai_test/providers/profile_provider.dart';
 import 'package:ai_test/pages/profile_page.dart';
@@ -14,6 +15,9 @@ import 'others/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialiser les notifications
+  await NotificationService().initialize();
 
   final themeNotifier = ThemeNotifier();
   await themeNotifier.initializeSync();

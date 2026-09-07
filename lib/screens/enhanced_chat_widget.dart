@@ -2,10 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:provider/provider.dart';
 import '../models/chat_message.dart';
 import '../services/api_service.dart';
-import '../providers/focus_provider.dart';
 
 /// Interface améliorée pour les conversations de chat
 class EnhancedChatWidget extends StatefulWidget {
