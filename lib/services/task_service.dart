@@ -2,9 +2,11 @@ import '../models/todo_task.dart';
 import '../models/journal_entry.dart';
 import 'local_db_service.dart';
 import 'logger_service.dart';
+import 'notification_service.dart';
 
 class TaskService {
   final _db = LocalDatabaseService();
+  final _notifications = NotificationService();
 
   // Tâches
   Future<String> addTask(String title, {String description = '', int urgency = 3, List<String>? subTasks}) async {
@@ -91,5 +93,25 @@ class TaskService {
 
   Future<List<Map<String, dynamic>>> getChatHistory() async {
     return await _db.getChatHistory();
+  }
+
+  // Rappels
+  Future<String> scheduleReminder(String message, int delayMinutes) async {
+    try {
+      final scheduledDate = DateTime.now().add(Duration(minutes: delayMinutes));
+      final id = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      
+      await _notifications.scheduleNotification(
+        id: id,
+        title: 'Rappel FocusFlow',
+        body: message,
+        scheduledDate: scheduledDate,
+      );
+      
+      return 'Rappel programmé avec succès pour dans $delayMinutes minutes.';
+    } catch (e) {
+      AppLogger.error('Erreur lors de la programmation du rappel', e);
+      return 'Erreur : Impossible de programmer le rappel.';
+    }
   }
 }
