@@ -151,13 +151,13 @@ class AppThemes {
     return MaterialColor(color.toARGB32(), swatch);
   }
 
-  static ThemeData lightTheme(MaterialColor primarySwatch) {
+  static ThemeData lightTheme(MaterialColor primarySwatch, double fontSizeFactor) {
     final colorScheme = ColorScheme.fromSwatch(
       primarySwatch: primarySwatch,
       brightness: Brightness.light,
-      accentColor: primarySwatch[400],
     ).copyWith(
       surface: Colors.white,
+      secondary: primarySwatch[400],
     );
 
     return ThemeData(
@@ -165,7 +165,7 @@ class AppThemes {
       brightness: Brightness.light,
       primarySwatch: primarySwatch,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.surface,
+      scaffoldBackgroundColor: const Color(0xFFF8F9FA),
       cardTheme: CardThemeData(
         color: Colors.white,
         elevation: 0,
@@ -175,12 +175,12 @@ class AppThemes {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: const Color(0xFFF8F9FA),
         foregroundColor: Colors.black87,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: GoogleFonts.poppins(
-          fontSize: 18,
+          fontSize: 18 * fontSizeFactor,
           fontWeight: FontWeight.bold,
           color: Colors.black87,
         ),
@@ -190,6 +190,7 @@ class AppThemes {
         ThemeData.light().textTheme.apply(
               bodyColor: Colors.black87,
               displayColor: Colors.black,
+              fontSizeFactor: fontSizeFactor,
             ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -199,7 +200,10 @@ class AppThemes {
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
+          textStyle: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600, 
+            fontSize: 15 * fontSizeFactor
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -218,19 +222,19 @@ class AppThemes {
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(color: primarySwatch, width: 2),
         ),
-        hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14),
-        labelStyle: GoogleFonts.poppins(color: Colors.black87, fontSize: 14),
+        hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14 * fontSizeFactor),
+        labelStyle: GoogleFonts.poppins(color: Colors.black87, fontSize: 14 * fontSizeFactor),
       ),
     );
   }
 
-  static ThemeData darkTheme(MaterialColor primarySwatch) {
+  static ThemeData darkTheme(MaterialColor primarySwatch, double fontSizeFactor) {
     final colorScheme = ColorScheme.fromSwatch(
       primarySwatch: primarySwatch,
       brightness: Brightness.dark,
-      accentColor: primarySwatch[200],
     ).copyWith(
       surface: const Color(0xFF1E1E1E),
+      secondary: primarySwatch[200],
     );
 
     return ThemeData(
@@ -253,7 +257,7 @@ class AppThemes {
         elevation: 0,
         centerTitle: true,
         titleTextStyle: GoogleFonts.poppins(
-          fontSize: 18,
+          fontSize: 18 * fontSizeFactor,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
@@ -263,6 +267,7 @@ class AppThemes {
         ThemeData.dark().textTheme.apply(
               bodyColor: Colors.white70,
               displayColor: Colors.white,
+              fontSizeFactor: fontSizeFactor,
             ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -272,7 +277,10 @@ class AppThemes {
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
+          textStyle: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600, 
+            fontSize: 15 * fontSizeFactor
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -291,8 +299,8 @@ class AppThemes {
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(color: primarySwatch, width: 2),
         ),
-        hintStyle: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 14),
-        labelStyle: GoogleFonts.poppins(color: Colors.white70, fontSize: 14),
+        hintStyle: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 14 * fontSizeFactor),
+        labelStyle: GoogleFonts.poppins(color: Colors.white70, fontSize: 14 * fontSizeFactor),
       ),
     );
   }
