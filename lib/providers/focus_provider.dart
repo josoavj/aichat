@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../models/focus_session.dart';
+import '../services/local_db_service.dart';
 
 class FocusProvider extends ChangeNotifier {
+  final _db = LocalDatabaseService();
   Timer? _timer;
   int _secondsRemaining = 25 * 60; // 25 minutes par défaut
+  int _initialMinutes = 25;
   bool _isActive = false;
   int _completedCycles = 0;
 
@@ -21,17 +25,20 @@ class FocusProvider extends ChangeNotifier {
     if (_isActive) return;
     
     if (minutes != null) {
+      _initialMinutes = minutes;
       _secondsRemaining = minutes * 60;
     }
 
     _isActive = true;
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (_secondsRemaining > 0) {
         _secondsRemaining--;
         notifyListeners();
       } else {
         stopTimer();
         _completedCycles++;
+        // Sauvegarder la session en base de données
+        await _db.insertFocusSession(FocusSession(durationMinutes: _initialMinutes));
         notifyListeners();
       }
     });

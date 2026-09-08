@@ -24,7 +24,11 @@ class TaskProvider extends ChangeNotifier {
   }
 
   Future<void> toggleTask(TodoTask task) async {
-    final updatedTask = task.copyWith(isCompleted: !task.isCompleted);
+    final isNowCompleted = !task.isCompleted;
+    final updatedTask = task.copyWith(
+      isCompleted: isNowCompleted,
+      completedAt: isNowCompleted ? DateTime.now() : null,
+    );
     await _db.updateTask(updatedTask);
     await loadTasks();
   }

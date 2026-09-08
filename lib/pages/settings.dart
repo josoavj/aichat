@@ -42,8 +42,9 @@ class _SettingsState extends State<Settings> {
 
   // Fonction pour afficher le dialogue de sélection de couleur
   void showColorPickerDialog() {
-    Color pickerColor =
-        Provider.of<ThemeNotifier>(context, listen: false).primarySwatch;
+    final themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
+    Color pickerColor = themeNotifier.primarySwatch;
+    
     showDialog(
       context: context,
       builder: (context) {
@@ -66,15 +67,12 @@ class _SettingsState extends State<Settings> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: () => Navigator.of(context).pop(),
                   child: const Text('Annuler'),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Provider.of<ThemeNotifier>(context, listen: false)
-                        .changeThemeColor(pickerColor);
+                    themeNotifier.changeThemeColor(pickerColor);
                     Navigator.of(context).pop();
                   },
                   child: const Text('Appliquer'),
@@ -112,9 +110,7 @@ class _SettingsState extends State<Settings> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text('Annuler'),
             ),
             ElevatedButton(
@@ -125,8 +121,9 @@ class _SettingsState extends State<Settings> {
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                          content: Text('Clé API mise à jour.',
-                              style: GoogleFonts.poppins())),
+                        content: Text('Clé API mise à jour.',
+                            style: GoogleFonts.poppins()),
+                      ),
                     );
                   }
                 }
@@ -154,21 +151,19 @@ class _SettingsState extends State<Settings> {
               style: GoogleFonts.poppins()),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text('Annuler'),
             ),
             ElevatedButton(
               onPressed: () async {
-                await prefs.remove(
-                    'chat_history'); // Supprime l'historique (clé fictive)
+                await prefs.remove('chat_history');
                 if (context.mounted) {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                        content: Text('Historique effacé.',
-                            style: GoogleFonts.poppins())),
+                      content: Text('Historique effacé.',
+                          style: GoogleFonts.poppins()),
+                    ),
                   );
                 }
               },
