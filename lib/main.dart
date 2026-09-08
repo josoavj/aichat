@@ -1,3 +1,4 @@
+import 'package:ai_test/providers/stats_provider.dart';
 import 'package:ai_test/services/notification_service.dart';
 import 'package:ai_test/providers/focus_provider.dart';
 import 'package:ai_test/providers/profile_provider.dart';
@@ -30,6 +31,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => TaskProvider()..loadTasks()),
         ChangeNotifierProvider(create: (context) => JournalProvider()..loadEntries()),
         ChangeNotifierProvider(create: (context) => FocusProvider()),
+        ChangeNotifierProvider(create: (context) => StatsProvider()..loadStats()),
       ],
       child: const MyApp(),
     ),
@@ -48,8 +50,8 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'FocusFlow Assistant',
           debugShowCheckedModeBanner: false,
-          theme: AppThemes.lightTheme(themeNotifier.primarySwatch),
-          darkTheme: AppThemes.darkTheme(themeNotifier.primarySwatch),
+          theme: AppThemes.lightTheme(themeNotifier.primarySwatch, themeNotifier.fontSize),
+          darkTheme: AppThemes.darkTheme(themeNotifier.primarySwatch, themeNotifier.fontSize),
           themeMode: themeNotifier.themeMode,
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
