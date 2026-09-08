@@ -3,6 +3,7 @@ import 'package:ai_test/screens/enhanced_api_key_widget.dart';
 import 'package:ai_test/screens/enhanced_chat_widget.dart';
 import 'package:ai_test/screens/journal_screen.dart';
 import 'package:ai_test/screens/focus_screen.dart';
+import 'package:ai_test/screens/stats_screen.dart';
 import 'package:ai_test/services/api_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -63,9 +64,16 @@ class _ChatScreenState extends State<ChatScreen> {
       const DashboardScreen(),
       const JournalScreen(),
       const FocusScreen(),
+      const StatsScreen(),
     ];
 
-    final List<String> titles = ['FocusFlow Chat', 'Mes Tâches', 'Mon Journal', 'Focus Mode'];
+    final List<String> titles = [
+      'FocusFlow Chat',
+      'Mes Tâches',
+      'Mon Journal',
+      'Focus Mode',
+      'Statistiques'
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -119,6 +127,11 @@ class _ChatScreenState extends State<ChatScreen> {
               icon: Icon(Icons.timer_outlined),
               selectedIcon: Icon(Icons.timer),
               label: 'Focus',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.bar_chart_outlined),
+              selectedIcon: Icon(Icons.bar_chart),
+              label: 'Stats',
             ),
           ],
         ),
