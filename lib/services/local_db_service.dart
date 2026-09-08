@@ -4,6 +4,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import '../models/todo_task.dart';
 import '../models/journal_entry.dart';
+import '../models/focus_session.dart';
 
 class LocalDatabaseService {
   static final LocalDatabaseService _instance = LocalDatabaseService._internal();
@@ -28,8 +29,9 @@ class LocalDatabaseService {
     String path = join(await getDatabasesPath(), 'productivity.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -41,6 +43,7 @@ class LocalDatabaseService {
         description TEXT,
         isCompleted INTEGER DEFAULT 0,
         createdAt TEXT NOT NULL,
+        completedAt TEXT,
         estimatedMinutes INTEGER DEFAULT 15,
         urgency INTEGER DEFAULT 3,
         subTasks TEXT
@@ -65,6 +68,39 @@ class LocalDatabaseService {
         createdAt TEXT NOT NULL
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE focus_sessions(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        durationMinutes INTEGER NOT NULL,
+        createdAt TEXT NOT NULL
+      )
+    ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE tasks ADD COLUMN completedAt TEXT');
+      await db.execute('''
+        CREATE TABLE focus_sessions(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          durationMinutes INTEGER NOT NULL,
+          createdAt TEXT NOT NULL
+        )
+      ''');
+    }
+  }
+
+  // Opérations Focus
+  Future<int> insertFocusSession(FocusSession session) async {
+    final db = await database;
+    return await db.insert('focus_sessions', session.toMap());
+  }
+
+  Future<List<FocusSession>> getFocusSessions() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('focus_sessions', orderBy: 'createdAt DESC');
+    return List.generate(maps.length, (i) => FocusSession.fromMap(maps[i]));
   }
 
   // Opérations Chat
