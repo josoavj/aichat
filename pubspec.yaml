@@ -41,12 +41,6 @@ dependencies:
   # State Management
   provider: ^6.1.5+1
 
-  # Firebase
-  firebase_core: ^4.2.1
-  cloud_firestore: ^6.1.0
-  firebase_auth: ^6.1.2
-  firebase_storage: ^13.0.4
-
   # Utilities
   google_generative_ai: ^0.4.3
   url_launcher: ^6.3.0
