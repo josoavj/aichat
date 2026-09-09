@@ -35,17 +35,10 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter_markdown: ^0.7.3
   google_fonts: ^8.0.2
-  font_awesome_flutter: ^11.0.0
   flutter_colorpicker: ^1.1.0
 
   # State Management
   provider: ^6.1.5+1
-
-  # Firebase
-  firebase_core: ^4.2.1
-  cloud_firestore: ^6.1.0
-  firebase_auth: ^6.1.2
-  firebase_storage: ^13.0.4
 
   # Utilities
   google_generative_ai: ^0.4.3
@@ -54,7 +47,6 @@ dependencies:
   flutter_secure_storage: ^11.0.0
   logger: ^2.2.0
   image_picker: ^1.2.0
-  crypto: ^3.0.3
   sqflite: ^2.3.3+1
   path: ^1.9.0
   intl: ^0.20.3
