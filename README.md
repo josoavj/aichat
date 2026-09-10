@@ -81,7 +81,11 @@ FocusFlow est conçu pour les personnes hyperactives qui ont besoin de structure
 
 ## 🤝 Contribution
 
-Les contributions sont les bienvenues pour améliorer l'expérience TDAH/Productivité !
+Les contributions sont les bienvenues pour améliorer l'expérience TDAH/Productivité ! Consultez notre [Guide de contribution](CONTRIBUTING.md) pour plus de détails.
+
+## 📄 Licence
+
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
 ---
 
