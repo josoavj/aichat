@@ -44,7 +44,7 @@ FocusFlow est conçu pour les personnes hyperactives qui ont besoin de structure
 
 ---
 
-## 🚀 Démarrage Rapide
+## Démarrage Rapide
 
 ### Prérequis
 - **Flutter SDK**: 3.24.x ou supérieur.
@@ -70,7 +70,7 @@ FocusFlow est conçu pour les personnes hyperactives qui ont besoin de structure
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 - **State Management**: `Provider` pour une réactivité optimale.
 - **Database**: `sqflite` + `sqflite_common_ffi` (Support Desktop natif).
@@ -79,11 +79,11 @@ FocusFlow est conçu pour les personnes hyperactives qui ont besoin de structure
 
 ---
 
-## 🤝 Contribution
+## Contribution
 
 Les contributions sont les bienvenues pour améliorer l'expérience TDAH/Productivité ! Consultez notre [Guide de contribution](CONTRIBUTING.md) pour plus de détails.
 
-## 📄 Licence
+## Licence
 
 Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
