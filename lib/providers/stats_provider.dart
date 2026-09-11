@@ -4,11 +4,13 @@ import '../models/focus_session.dart';
 import '../services/local_db_service.dart';
 
 class StatsProvider extends ChangeNotifier {
-  final _db = LocalDatabaseService();
+  final LocalDatabaseService _db;
   
   List<TodoTask> _completedTasks = [];
   List<FocusSession> _focusSessions = [];
   bool _isLoading = false;
+
+  StatsProvider({LocalDatabaseService? db}) : _db = db ?? LocalDatabaseService();
 
   List<TodoTask> get completedTasks => _completedTasks;
   List<FocusSession> get focusSessions => _focusSessions;
