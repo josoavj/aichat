@@ -3,9 +3,11 @@ import '../models/journal_entry.dart';
 import '../services/local_db_service.dart';
 
 class JournalProvider extends ChangeNotifier {
-  final _db = LocalDatabaseService();
+  final LocalDatabaseService _db;
   List<JournalEntry> _entries = [];
   bool _isLoading = false;
+
+  JournalProvider({LocalDatabaseService? db}) : _db = db ?? LocalDatabaseService();
 
   List<JournalEntry> get entries => _entries;
   bool get isLoading => _isLoading;
