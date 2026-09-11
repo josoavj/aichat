@@ -3,9 +3,11 @@ import '../models/todo_task.dart';
 import '../services/local_db_service.dart';
 
 class TaskProvider extends ChangeNotifier {
-  final _db = LocalDatabaseService();
+  final LocalDatabaseService _db;
   List<TodoTask> _tasks = [];
   bool _isLoading = false;
+
+  TaskProvider({LocalDatabaseService? db}) : _db = db ?? LocalDatabaseService();
 
   List<TodoTask> get tasks => _tasks;
   bool get isLoading => _isLoading;

@@ -5,8 +5,14 @@ import 'logger_service.dart';
 import 'notification_service.dart';
 
 class TaskService {
-  final _db = LocalDatabaseService();
-  final _notifications = NotificationService();
+  final LocalDatabaseService _db;
+  final NotificationService _notifications;
+
+  TaskService({
+    LocalDatabaseService? db,
+    NotificationService? notifications,
+  })  : _db = db ?? LocalDatabaseService(),
+        _notifications = notifications ?? NotificationService();
 
   // Tâches
   Future<String> addTask(String title, {String description = '', int urgency = 3, List<String>? subTasks}) async {
