@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ai_test/models/todo_task.dart';
 import 'package:ai_test/models/journal_entry.dart';
 import 'package:ai_test/models/focus_session.dart';
+import 'package:ai_test/models/chat_message.dart';
 
 void main() {
   group('TodoTask Model', () {
@@ -61,6 +62,22 @@ void main() {
       final fromMap = FocusSession.fromMap(map);
       
       expect(fromMap.durationMinutes, 25);
+    });
+  });
+
+  group('ChatMessage Model', () {
+    test('should create instance correctly', () {
+      final message = ChatMessage(text: 'Hello', isFromUser: true);
+      expect(message.text, 'Hello');
+      expect(message.isFromUser, true);
+      expect(message.timestamp, isA<DateTime>());
+    });
+
+    test('error factory should create error message', () {
+      final message = ChatMessage.error('Some error');
+      expect(message.text, 'Some error');
+      expect(message.isFromUser, false);
+      expect(message.error, 'Some error');
     });
   });
 }
